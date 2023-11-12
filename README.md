@@ -1,4 +1,6 @@
 # CyberPatriot-Script
+THIS CANNOT BE USED BY ANYONE OTHER THAN THE CREATOR FOR CYBERPATRIOT COMPETITIONS AS PER THE RULES.
+
 A CyberPatriot Script for Ubuntu/Debian Images, written with Bash.
 
 This is a fundamental script, and continuously in the process of being improved. As of this point, there are 10 built in functionalities to choose from.
