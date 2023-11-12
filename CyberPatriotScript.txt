@@ -1,0 +1,473 @@
+#!/bin/bash
+
+#VARIABLE DECLARATION:
+listOperations=(
+"1) Manage Users" 
+"2) Manage Groups" 
+"3) Activate Firewall" 
+"4) Full Update" 
+"5) Configure PAM" 
+"6) Fix Root Login" 
+"7) Configure Auditd" 
+"8) Scan Crontab" 
+"9) Processes and Services" 
+)
+
+#MAIN MENU:
+#Shows the main menu and options for the script to execute.
+mainMenu() {
+	echo 'Linux CyberPatriot Script'
+	echo 'Written by Ryan George'
+	echo
+	echo 'Welcome '$username'!'
+	echo
+	echo 'Please input what you need to do. (0 for multiple)'
+	echo
+	echo '0) Activate Multiple'
+	for ((i=0; i<${#listOperations[@]}; i++)); do
+		echo ${listOperations[i]}
+	done
+	echo
+	read input
+	case $((input)) in
+		0)
+		echo
+		activateMultiple
+		echo
+		;;
+		
+		1)
+		echo
+		manageUsers
+		echo
+		;;
+
+		3)
+		echo
+		activateFirewall
+		echo
+		;;
+
+		4)
+		echo
+		fullUpdate
+		echo
+		;;
+
+		5)
+		echo
+		configurePAM
+		echo
+		;;
+		
+		6)
+		echo
+		fixRootLogin
+		echo
+		;;
+		
+		7)
+		echo
+		configureAuditd
+		echo
+		;;
+		
+		8)
+		echo
+		scanCrontab
+		echo
+		;;
+		
+		9)
+		echo
+		processesAndServices
+		echo
+		;;
+		
+		*)
+		mainMenu
+		;;
+		esac
+	clear
+}
+
+#ACTIVATE MULTIPLE:
+#Gives the user the option to activate multiple of the options available.
+activateMultiple() {
+	declare -a opList=()
+	updateLast=0
+	echo 'Hello '$username'! Welcome to Activate Multiple.'
+	echo
+	echo 'Please enter all the operations you wish to do.'
+	echo 'Type 1 number into each line and press enter.'
+	echo 'Each command will be documented then activated in order.'
+	echo
+	echo 'At any time, you can type 0 to start the operations.'
+	echo 'You can also get a list of all operations by typing -1.'
+	echo
+	for ((;;)) do
+		echo 'Please input the operation you wish to do. (-1 for list, 0 to Start)'
+		read input
+		echo
+		if [[ ! $input  == 0 ]] && [[ ! $input == -1 ]] && [ ! $input == 4 ]; then
+			opList=("${opList[@]}" "$input")
+		elif [ $input == -1 ]; then
+			for ((i=0; i<${#listOperations[@]}; i++)); do
+				echo ${listOperations[i]}
+			done
+		elif [ $input == 4 ]; then
+			updateLast=1
+		else
+			break
+		fi
+	done
+	if [ $updateLast == 1 ];then
+		opList=("${opList[@]}" 4)
+	fi
+	echo "${opList[@]}"
+	echo
+	echo 'Activating now!'
+	echo
+	for ((a=0;a<${#opList[@]}; a++)); do
+		case ${opList[a]} in
+			1)
+			echo 'Activating: Manage Users'
+			echo
+			manageUsers
+			;;
+
+			2)
+			echo 'Activating: Manage Groups'
+			echo
+			;;
+
+			3)
+			echo 'Activating: Firewall'
+			echo
+			activateFirewall
+			;;
+
+			4)
+			echo 'Activating: Full Update'
+			echo
+			fullUpdate
+			;;
+			
+			5)
+			echo 'Activating: Configure PAM'
+			echo
+			configurePAM
+			;;
+		
+			6)
+			echo 'Activating: Fix Root Login'
+			echo
+			fixRootLogin
+			;;
+			
+			7)
+			echo 'Activating: Configure Auditd'
+			echo
+			configureAuditd
+			;;
+			
+			8)
+			echo 'Activating: Scan Crontab'
+			echo
+			scanCrontab
+			;;
+			
+			9)
+			echo 'Activating: Processes and Services'
+			echo
+			processesAndServices
+			;;
+
+			*)
+			;;
+		esac
+	done
+	clear
+}
+
+#BELOW ARE RESOURCES FOR INDIVIDUAL OPERATIONS!
+
+#MANAGE USERS:
+#Establishes the users.txt file that will be used in this function.
+manageUsers() {
+	#EMPTY FOR NOW
+	echo 'Testing'
+}
+
+#ACTIVATE FIREWALL:
+#Installs and enables uncomplicated firewall on the device.
+activateFirewall() {
+	clear
+	echo 'Welcome to Activate Firewall, '$username'.'
+	echo
+	echo 'This will install and enable Uncomplicated Firewall on this device.'
+	echo 'Opening new terminal now...'
+	echo
+	#mkfifo "$fifo"
+	gnome-terminal -- bash -c "
+	echo 'Installing Uncomplicated Firewall now!'; 
+	sudo apt install ufw; 
+	echo 'Installation Complete!'; 
+	echo 'Enabling Uncomplicated Firewall now.'; 
+	sudo ufw enable; 
+	echo; 
+	echo 'Firewall has been installed and activated.';
+	echo
+	echo 'Closing terminal...'
+	sleep 2s; > $fifo"
+	
+	read < "$fifo"
+}
+
+#FULL UPDATE:
+#Fully updates the device in a seperate terminal.
+fullUpdate() {
+	clear
+	echo 'Welcome to Full Update, '$username'.'
+	echo
+	echo 'This will update all applications on this machine.'
+	echo 'Opening new terminal now...'
+	echo
+	#mkfifo "$fifo"
+	
+	gnome-terminal -- bash -c "
+	echo 'Beginning Update now'; 
+	sudo apt-get update -y; 
+	sudo apt upgrade -y; 
+	echo; 
+	echo 'Update Complete!'; 
+	echo;
+	echo 'Terminal closing...'; 
+	sleep 2s; > $fifo"
+	
+	read < "$fifo"
+}
+
+#CONFIGURE PAM:
+#Configures PAM to harden the system.
+configurePAM() {
+	#DONT BRICK THE COMPUTER
+	echo 'Testing'
+}
+
+#FIX ROOT LOGIN:
+#Turns permit root login to no in sshd config.
+fixRootLogin() {
+	clear
+	echo 'Welcome to Fix Root Login, '$username'.'
+	echo
+	echo 'This will make sure users cannot log in as root.'
+	echo 'Searching now...'
+	echo
+	sshdConfig="/etc/ssh/sshd_config"
+	sshdFile="/etc/ssh/sshd"
+	
+	if [ -f $sshdConfig ]; then
+		sudo sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdConfig;
+	elif [ -f $sshdFile ]; then
+		sudo sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdFile;
+	fi
+}
+
+#CONFIGURE AUDITD:
+#Downloads and activates Auditd to help security.
+configureAuditd() {
+	clear
+	echo 'Welcome to Configure Auditd, '$username'.'
+	echo
+	echo 'Installing and activating auditd.'
+	echo 'Opening new terminal now...'
+	echo
+	#mkfifo "$fifo"
+	gnome-terminal -- bash -c "
+	echo 'Installing auditd.';
+	sudo apt install auditd -y;
+	echo;
+	echo 'Installation Complete!';
+	echo 'Activating now.'
+	echo;
+	sudo auditctl -e 1;
+	echo;
+	echo 'Activation Complete!';
+	echo;
+	echo 'Terminal closing...';
+	sleep 2s; > $fifo"
+	
+	read < "$fifo"
+}
+
+#SCAN CRONTAB:
+#Scans to see if there are any crontabs active. If so, lists them.
+scanCrontab() {
+	clear
+	echo 'Welcome to Scan Crontab, '$username'.'
+	echo
+	echo 'This will see if there are any active crontabs.'
+	echo 'If there are any, you can choose to open the file if you want.'
+	echo 'Scanning now...'
+	echo
+	cronDir="/var/spool/cron/crontabs"
+	cronRes="sudo ls $cronDir"
+	if [ -z "$cronRes" ]; then
+		echo 'No active Crontabs.'
+	else
+		echo 'Crontabs found.'
+		echo 'These users have crontabs: '
+		echo
+		for ((i=0; i<${#checkUsers[@]}; i++)); do
+			if [ -f $cronDir/"${checkUsers[i]}" ]; then
+				echo ${checkUsers[i]}' has a Crontab, show it? (y/n)'
+				read input
+				if [ "$input" = "y" ]; then
+					echo
+					#mkfifo "$fifo"
+					echo 'Opening Crontab...'
+					gnome-terminal -- bash -c "sudo crontab -u ${checkUsers[i]} -e; > $fifo"
+					read < "$fifo"
+				elif [ "$input" = "n" ]; then
+					echo
+					echo 'Searching for next user.'
+				else
+					echo 'Invalid answer, asking again...'
+					i=$((i-1))
+					echo
+				fi
+			fi
+		done
+	fi
+}
+
+#PROCESSES AND SERVICES:
+#Displays active processes and services as well as options to stop them.
+processesAndServices() {
+	clear
+	echo 'Welcome to Processes and Services, '$username'.'
+	echo
+	echo 'This program will show all active services and processes on this device.'
+	echo 'If you want to, you can shut them down as well.'
+	echo 'Showing now...'
+	echo
+	echo 'Processes: '
+	sudo netstat -tulnp
+	echo
+	for ((;;)) do
+		echo 'Would you like to remove any process(es)? (y/n)'
+		read input
+		if [ "$input" == "y" ]; then
+			echo 'What process would you like to remove? (By PID)'
+			read input
+			if [ -f "sudo ps aux | grep -v "grep" | grep $input" ]; then
+				sudo kill $input
+				echo
+				echo 'Process '$input', has been removed.'
+				echo
+			else
+				echo
+				echo 'Invalid input.'
+				echo
+			fi
+		elif [ "$input" == "n" ]; then
+			echo
+			break
+		fi
+	done
+	echo 'Services: '
+	sudo service --status-all
+	echo
+	for ((;;)) do
+		echo 'Would you like to stop any services? (y/n)'
+		read input
+		if [ "$input" == "y" ]; then
+			echo 'What service would you like to stop? (By Service Name)'
+			read input
+			if [ -f "sudo service --status-all | grep $input" ]; then
+				sudo apt-get --purge $input
+				echo
+				echo 'Service '$input', has been stopped.'
+				echo
+			else
+				echo
+				echo 'Invalid input.'
+				echo
+			fi
+		elif [ "$input" == "n" ]; then
+			echo
+			break
+		fi
+	done
+	echo 'Processes and Services have been checked.'
+	sleep 2s
+}
+
+
+#BELOW ARE RESOURCES FOR STARTING THE SCRIPT:
+
+#FIFO TERMINAL:
+#Sets up fifo to close unwanted terminals.
+fifo="/tmp/terminal_fifo"
+
+#SUDO/ROOT CHECK:
+#Checks if the script was ran as root, if not, it exits the script
+if [ "$EUID" -ne 0 ]; then
+	echo 'Run Script with "sudo" or as root.'
+	exit
+fi
+
+#USER MANAGER FILE:
+#Creates a manageUsers file that can be used for other methods.
+userFile="manageUsers.txt"
+if [ ! -f "$userFile" ]; then
+	echo 'Before the script starts, please enter users into the following file.'
+	echo 'Be sure to add all users, including yourself and users you wish to add.'
+	echo
+	echo 'Please do not forget to save (ctrl +s) the file.'
+	echo 'When you are done, please exit (ctrl +c) the file in this terminal.'
+	sleep 2s
+	sudo touch manageUsers.txt
+	sudo gedit manageUsers.txt
+	echo
+	echo
+fi
+mapfile -t checkUsers < $userFile
+
+#DBUS CHECK:
+#Ensures new terminals can be opened using Gnome
+if ! sudo apt list --installed | grep -q "dbus-x11"; then
+	echo 'dbus-x11 is not installed. Installing now...'
+	sudo apt-get install dbus-x11
+	echo
+fi
+
+#NETSTAT CHECK:
+#Ensures the user has net-tools downloaded for the Processes and Services method.'
+if ! sudo apt list --installed | grep -q "net-tools"; then
+	echo 'Net-Tools is not installed. Installing now...'
+	sudo apt install net-tools
+	echo
+fi
+
+#CHECKS COMPLETE!
+clear
+echo 'System pre-checks complete!'
+echo 'Script starting momentarily...'
+echo
+sleep 2s
+
+#USERNAME INPUT:
+#Gets the username of the user to later be used.
+echo 'What is your Username?'
+read username
+echo
+
+#Starts mkfifo to ensure functions and windows open sequentially.
+mkfifo $fifo
+
+#PROGRAM START:
+#Calls the main menu to start the program.
+clear
+mainMenu
