@@ -464,6 +464,7 @@ echo 'What is your Username?'
 read username
 echo
 
+#INITIALIZE MKFIFO:
 #Starts mkfifo to ensure functions and windows open sequentially.
 mkfifo $fifo
 
