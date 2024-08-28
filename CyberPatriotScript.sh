@@ -1,6 +1,7 @@
 #!/bin/bash
 
 #VARIABLE DECLARATION:
+authUsers=()
 listOperations=(
 "1) Manage Users" 
 "2) Manage Groups" 
@@ -94,7 +95,7 @@ mainMenu() {
 #ACTIVATE MULTIPLE:
 #Gives the user the option to activate multiple of the options available.
 activateMultiple() {
-	declare -a opList=()
+	opList=()
 	updateLast=0
 	echo 'Hello '$username'! Welcome to Activate Multiple.'
 	echo
@@ -194,14 +195,64 @@ activateMultiple() {
 
 #MANAGE USERS:
 #Establishes the users.txt file that will be used in this function.
-manageUsers() {
-	#EMPTY FOR NOW
-	echo 'Testing'
+manageUsers() 
+{
+	#Creates lists to be used in this function
+	missingUsers=()
+	unauthUsers=()
+	
+	#Makes a list of what users are on the system currently
+	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
+	
+	sleep 5s
+	
+	#Checks if there is any unauthorized users on the system
+	for user in "${systemUsers[@]}"; do
+		if [[ "${authUsers[*]}" == *"$user"* ]]; then
+			echo "Match Found: $user"
+        	else
+        		unauthUsers+=("$user")
+    		fi
+	done
+	
+	#Removes unauthorized users
+	if [[ ${#unauthUsers[@]} -gt 0 ]]; then
+		for user in "${unauthUsers[@]}"; do
+			sudo deluser "$user"
+		done
+	fi
+	
+	#Re-maps the file to include an updated list of users
+	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
+	
+	#Gets missing users on the system
+	for user in "${authUsers[@]}"; do
+		if [[ "${systemUsers[*]}" != *"$user"* ]]; then
+			echo "Missing User: $user"
+			missingUsers+=("$user")
+		fi
+	done
+	
+	#Adds any missing users
+	if [[ ${#missingUsers[@]} -gt 0 ]]; then
+		for user in "${missingUsers[@]}"; do
+			echo "Added User: $user"
+			sudo adduser --disabled-password --gecos GECOS "$user"
+		done  
+	fi
+	
+	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
+	
+	echo ${authUsers[@]}
+	echo ${systemUsers[@]}
+	
+	sleep 60s
 }
 
 #ACTIVATE FIREWALL:
 #Installs and enables uncomplicated firewall on the device.
-activateFirewall() {
+activateFirewall() 
+{
 	clear
 	echo 'Welcome to Activate Firewall, '$username'.'
 	echo
@@ -226,7 +277,8 @@ activateFirewall() {
 
 #FULL UPDATE:
 #Fully updates the device in a seperate terminal.
-fullUpdate() {
+fullUpdate() 
+{
 	clear
 	echo 'Welcome to Full Update, '$username'.'
 	echo
@@ -250,14 +302,16 @@ fullUpdate() {
 
 #CONFIGURE PAM:
 #Configures PAM to harden the system.
-configurePAM() {
+configurePAM() 
+{
 	#DONT BRICK THE COMPUTER
 	echo 'Testing'
 }
 
 #FIX ROOT LOGIN:
 #Turns permit root login to no in sshd config.
-fixRootLogin() {
+fixRootLogin() 
+{
 	clear
 	echo 'Welcome to Fix Root Login, '$username'.'
 	echo
@@ -276,7 +330,8 @@ fixRootLogin() {
 
 #CONFIGURE AUDITD:
 #Downloads and activates Auditd to help security.
-configureAuditd() {
+configureAuditd() 
+{
 	clear
 	echo 'Welcome to Configure Auditd, '$username'.'
 	echo
@@ -303,7 +358,8 @@ configureAuditd() {
 
 #SCAN CRONTAB:
 #Scans to see if there are any crontabs active. If so, lists them.
-scanCrontab() {
+scanCrontab() 
+{
 	clear
 	echo 'Welcome to Scan Crontab, '$username'.'
 	echo
@@ -319,15 +375,15 @@ scanCrontab() {
 		echo 'Crontabs found.'
 		echo 'These users have crontabs: '
 		echo
-		for ((i=0; i<${#checkUsers[@]}; i++)); do
-			if [ -f $cronDir/"${checkUsers[i]}" ]; then
-				echo ${checkUsers[i]}' has a Crontab, show it? (y/n)'
+		for ((i=0; i<${#authUsers[@]}; i++)); do
+			if [ -f $cronDir/"${authUsers[i]}" ]; then
+				echo ${authUsers[i]}' has a Crontab, show it? (y/n)'
 				read input
 				if [ "$input" = "y" ]; then
 					echo
 					#mkfifo "$fifo"
 					echo 'Opening Crontab...'
-					gnome-terminal -- bash -c "sudo crontab -u ${checkUsers[i]} -e; > $fifo"
+					gnome-terminal -- bash -c "sudo crontab -u ${authUsers[i]} -e; > $fifo"
 					read < "$fifo"
 				elif [ "$input" = "n" ]; then
 					echo
@@ -344,7 +400,8 @@ scanCrontab() {
 
 #PROCESSES AND SERVICES:
 #Displays active processes and services as well as options to stop them.
-processesAndServices() {
+processesAndServices() 
+{
 	clear
 	echo 'Welcome to Processes and Services, '$username'.'
 	echo
@@ -400,8 +457,6 @@ processesAndServices() {
 			break
 		fi
 	done
-	echo 'Processes and Services have been checked.'
-	sleep 2s
 }
 
 
@@ -433,7 +488,9 @@ if [ ! -f "$userFile" ]; then
 	echo
 	echo
 fi
-mapfile -t checkUsers < $userFile
+
+#Assigns a list variable for all the users on the system
+mapfile -t authUsers < $userFile
 
 #DBUS CHECK:
 #Ensures new terminals can be opened using Gnome
@@ -450,13 +507,6 @@ if ! sudo apt list --installed | grep -q "net-tools"; then
 	sudo apt install net-tools
 	echo
 fi
-
-#CHECKS COMPLETE!
-clear
-echo 'System pre-checks complete!'
-echo 'Script starting momentarily...'
-echo
-sleep 2s
 
 #USERNAME INPUT:
 #Gets the username of the user to later be used.
