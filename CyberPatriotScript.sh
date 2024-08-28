@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #VARIABLE DECLARATION:
-authUsers=()
 listOperations=(
 "1) Manage Users" 
 "2) Manage Groups" 
@@ -218,7 +217,7 @@ manageUsers()
 	#Removes unauthorized users
 	if [[ ${#unauthUsers[@]} -gt 0 ]]; then
 		for user in "${unauthUsers[@]}"; do
-			sudo deluser "$user"
+			sudo deluser --remove-home "$user"
 		done
 	fi
 	
@@ -237,7 +236,7 @@ manageUsers()
 	if [[ ${#missingUsers[@]} -gt 0 ]]; then
 		for user in "${missingUsers[@]}"; do
 			echo "Added User: $user"
-			sudo adduser --disabled-password --gecos GECOS "$user"
+			sudo adduser --disabled-password --gecos $user "$user"
 		done  
 	fi
 	
