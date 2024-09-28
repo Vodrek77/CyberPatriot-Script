@@ -212,7 +212,7 @@ manageUsers()
         		fi
     		done
     		if [[ $found -eq 0 ]]; then
-        		sudo deluser --remove-home "$user"
+        		deluser --remove-home "$user"
     		fi
 	done
 	
@@ -229,7 +229,7 @@ manageUsers()
         		fi
     		done
     		if [[ $found -eq 0 ]]; then\
-        		sudo useradd "$user"
+        		useradd "$user"
     		fi
 	done
 	
@@ -254,7 +254,7 @@ manageUsers()
     		done
     		if [[ $found -eq 0 ]]; then
         		echo "Unauthorized user found: $user. Removing..."
-        		sudo deluser --remove-home "$user"
+        		deluser --remove-home "$user"
     		fi
 	done
 	
@@ -268,7 +268,7 @@ manageUsers()
         		fi
     		done
     		if [[ $found -eq 0 ]]; then
-        		sudo adduser "$user" sudo
+        		adduser "$user" sudo
     		fi
 	done
 }
@@ -346,9 +346,9 @@ fixRootLogin()
 	sshdFile="/etc/ssh/sshd"
 	
 	if [ -f $sshdConfig ]; then
-		sudo sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdConfig;
+		sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdConfig;
 	elif [ -f $sshdFile ]; then
-		sudo sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdFile;
+		sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdFile;
 	fi
 }
 
@@ -392,7 +392,7 @@ scanCrontab()
 	echo 'Scanning now...'
 	echo
 	cronDir="/var/spool/cron/crontabs"
-	cronRes="sudo ls $cronDir"
+	cronRes="ls $cronDir"
 	if [ -z "$cronRes" ]; then
 		echo 'No active Crontabs.'
 	else
@@ -434,7 +434,7 @@ processesAndServices()
 	echo 'Showing now...'
 	echo
 	echo 'Processes: '
-	sudo netstat -tulnp
+	netstat -tulnp
 	echo
 	for ((;;)) do
 		echo 'Would you like to remove any process(es)? (y/n)'
@@ -442,8 +442,8 @@ processesAndServices()
 		if [ "$input" == "y" ]; then
 			echo 'What process would you like to remove? (By PID)'
 			read input
-			if [ -f "sudo ps aux | grep -v "grep" | grep $input" ]; then
-				sudo kill $input
+			if [ -f "ps aux | grep -v "grep" | grep $input" ]; then
+				kill $input
 				echo
 				echo 'Process '$input', has been removed.'
 				echo
@@ -458,7 +458,7 @@ processesAndServices()
 		fi
 	done
 	echo 'Services: '
-	sudo service --status-all
+	service --status-all
 	echo
 	for ((;;)) do
 		echo 'Would you like to stop any services? (y/n)'
@@ -467,7 +467,7 @@ processesAndServices()
 			echo 'What service would you like to stop? (By Service Name)'
 			read input
 			if [ -f "sudo service --status-all | grep $input" ]; then
-				sudo apt-get --purge $input
+				apt-get --purge $input
 				echo
 				echo 'Service '$input', has been stopped.'
 				echo
@@ -507,14 +507,14 @@ cd ScriptFiles
 
 adminFile="manageAdmins.txt"
 if [ ! -f "$adminFile" ]; then
-	sudo touch manageAdmins.txt
-	sudo gedit manageAdmins.txt
+	touch manageAdmins.txt
+	gedit manageAdmins.txt
 fi
 
 userFile="manageUsers.txt"
 if [ ! -f "$userFile" ]; then
-	sudo touch manageUsers.txt
-	sudo gedit manageUsers.txt
+	touch manageUsers.txt
+	gedit manageUsers.txt
 fi
 
 #Assigns a list variable for all the users on the system
@@ -527,17 +527,17 @@ echo ${allUsers[@]}
 
 #DBUS CHECK:
 #Ensures new terminals can be opened using Gnome
-if ! sudo apt list --installed | grep -q "dbus-x11"; then
+if ! apt list --installed | grep -q "dbus-x11"; then
 	echo 'dbus-x11 is not installed. Installing now...'
-	sudo apt-get install dbus-x11
+	apt-get install dbus-x11
 	echo
 fi
 
 #NETSTAT CHECK:
 #Ensures the user has net-tools downloaded for the Processes and Services method.'
-if ! sudo apt list --installed | grep -q "net-tools"; then
+if ! apt list --installed | grep -q "net-tools"; then
 	echo 'Net-Tools is not installed. Installing now...'
-	sudo apt install net-tools
+	apt install net-tools
 	echo
 fi
 
