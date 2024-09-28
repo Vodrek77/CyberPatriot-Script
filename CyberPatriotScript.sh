@@ -196,20 +196,22 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
+	#Combines files for a full list of expected users
 	allUsers=(${authAdmins[@]} ${authUsers[@]})
-
-	#Creates lists to be used in this function
-	missingUsers=()
-	unauthUsers=()
 	
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
 	
 	#Checks if there is any unauthorized users on the system
 	for user in "${systemUsers[@]}"; do
-		if [[ "${allUsers[*]}" == *"$user"* ]]; then
-			echo "Match Found: $user"
-        	else
+		found=0
+		for authorizedUser in "${allUsers[@]}"; do
+        		if [[ "$user" == "$authorizedUser" ]]; then
+            			found=1
+            			break
+        		fi
+    		done
+    		if [[ $found -eq 0 ]]; then
         		sudo deluser --remove-home "$user"
     		fi
 	done
@@ -219,31 +221,55 @@ manageUsers()
 	
 	#Gets missing users on the system
 	for user in "${allUsers[@]}"; do
-		if [[ "${systemUsers[*]}" != *"$user"* ]]; then
-			sudo useradd "$user"
-		fi
+    		found=0
+    		for sysUser in "${systemUsers[@]}"; do
+        		if [[ "$user" == "$sysUser" ]]; then
+            			found=1
+            			break
+        		fi
+    		done
+    		if [[ $found -eq 0 ]]; then\
+        		sudo useradd "$user"
+    		fi
 	done
 	
+	#Re-maps the file to include an updated list of users
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
 	echo ${systemUsers[@]}
+	
+	#//////////
 	
 	#ADMIN USERS
 	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
 	
-	#Removes any Unauthorized Admins
+	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
-		if [[ "${authAdmins[*]}" == *"$user"* ]]; then
-			echo "Match Found: $user"
-        	else
-        		sudo deluser "$user" sudo
+		found=0
+		for authorizedUser in "${authAdmins[@]}"; do
+        		if [[ "$user" == "$authorizedUser" ]]; then
+            			echo "Match Found: $user"
+            			found=1
+            			break
+        		fi
+    		done
+    		if [[ $found -eq 0 ]]; then
+        		echo "Unauthorized user found: $user. Removing..."
+        		sudo deluser --remove-home "$user"
     		fi
 	done
 	
 	#Adds any Admins not on the system already
 	for user in "${authAdmins[@]}"; do
-		if [[ "${sudoers[*]}" != *"$user"* ]]; then
-			sudo adduser "$user" sudo
-		fi
+    		found=0
+    		for sudoUser in "${sudoers[@]}"; do
+        		if [[ "$user" == "$sudoUser" ]]; then
+            			found=1
+            			break
+        		fi
+    		done
+    		if [[ $found -eq 0 ]]; then
+        		sudo adduser "$user" sudo
+    		fi
 	done
 }
 
