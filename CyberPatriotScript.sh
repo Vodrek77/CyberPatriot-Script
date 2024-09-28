@@ -298,11 +298,6 @@ passwordPolicy()
 	sed -i 's/^#\?\(PASS_MIN_DAYS\)\s*.*/\1    1/' /etc/login.defs
 	sed -i 's/^#\?\(PASS_WARN_AGE\)\s*.*/\1    7/' /etc/login.defs
 	sed -i 's/^#\?\(PASS_MIN_LEN\)\s*.*/\1    12/' /etc/login.defs
-
-	#Verify changes
-	echo "Updated /etc/login.defs:"
-	grep -E '^(PASS_MAX_DAYS|PASS_MIN_DAYS|PASS_WARN_AGE|PASS_MIN_LEN)' /etc/login.defs
-	sleep 5s
 }
 
 #ACTIVATE FIREWALL:
