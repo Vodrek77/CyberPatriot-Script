@@ -239,8 +239,7 @@ manageUsers()
         		fi
     		done
     		if [[ $found -eq 0 ]]; then
-        		echo "Unauthorized user found: $user. Removing..."
-        		deluser --remove-home "$user"
+        		deluser "$user" sudo
     		fi
 	done
 	
