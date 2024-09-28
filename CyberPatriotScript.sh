@@ -289,7 +289,7 @@ passwordPolicy()
 	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
 
 	#PAM Authentication
-	sed -i 's/\(auth \[success=2 default=ignore\] pam_unix.so \)nullok/\1/' /etc/pam.d/common-auth
+	sed -i 's/nullok//g' /etc/pam.d/common-auth
 	echo "auth required pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
 	echo "auth required pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
 
