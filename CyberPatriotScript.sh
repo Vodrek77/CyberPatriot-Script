@@ -210,16 +210,9 @@ manageUsers()
 		if [[ "${allUsers[*]}" == *"$user"* ]]; then
 			echo "Match Found: $user"
         	else
-        		unauthUsers+=("$user")
+        		sudo deluser --remove-home "$user"
     		fi
 	done
-	
-	#Removes unauthorized users
-	if [[ ${#unauthUsers[@]} -gt 0 ]]; then
-		for user in "${unauthUsers[@]}"; do
-			sudo deluser --remove-home "$user"
-		done
-	fi
 	
 	#Re-maps the file to include an updated list of users
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
@@ -227,25 +220,31 @@ manageUsers()
 	#Gets missing users on the system
 	for user in "${allUsers[@]}"; do
 		if [[ "${systemUsers[*]}" != *"$user"* ]]; then
-			missingUsers+=("$user")
+			sudo useradd "$user"
 		fi
 	done
-	
-	#Adds any missing users
-	if [[ ${#missingUsers[@]} -gt 0 ]]; then
-		for user in "${missingUsers[@]}"; do
-			sudo useradd "$user"
-		done  
-	fi
 	
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
 	echo ${systemUsers[@]}
 	
-	sleep 120s
-	
 	#ADMIN USERS
 	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
 	
+	#Removes any Unauthorized Admins
+	for user in "${sudoers[@]}"; do
+		if [[ "${authAdmins[*]}" == *"$user"* ]]; then
+			echo "Match Found: $user"
+        	else
+        		sudo deluser "$user" sudo
+    		fi
+	done
+	
+	#Adds any Admins not on the system already
+	for user in "${authAdmins[@]}"; do
+		if [[ "${sudoers[*]}" != *"$user"* ]]; then
+			sudo adduser "$user" sudo
+		fi
+	done
 }
 
 #ACTIVATE FIREWALL:
