@@ -7,11 +7,10 @@ listOperations=(
 "3) Password Policy"
 "4) Activate Firewall" 
 "5) Configure PAM" 
-"6) Fix Root Login" 
-"7) Configure Auditd" 
-"8) Scan Crontab" 
-"9) Processes and Services" 
-"10) Full Update" 
+"6) Configure Auditd" 
+"7) Scan Crontab" 
+"8) Processes and Services" 
+"9) Full Update" 
 )
 
 #MAIN MENU:
@@ -67,29 +66,23 @@ mainMenu() {
 		
 		6)
 		echo
-		fixRootLogin
+		configureAuditd
 		echo
 		;;
 		
 		7)
 		echo
-		configureAuditd
+		scanCrontab
 		echo
 		;;
 		
 		8)
 		echo
-		scanCrontab
-		echo
-		;;
-		
-		9)
-		echo
 		processesAndServices
 		echo
 		;;
 		
-		10)
+		9)
 		echo
 		fullUpdate
 		echo
@@ -161,22 +154,18 @@ activateMultiple() {
 			;;
 		
 			6)
-			fixRootLogin
-			;;
-			
-			7)
 			configureAuditd
 			;;
 			
-			8)
+			7)
 			scanCrontab
 			;;
 			
-			9)
+			8)
 			processesAndServices
 			;;
 			
-			10)
+			9)
 			fullUpdate
 			;;
 
@@ -291,13 +280,27 @@ manageGroups()
 
 passwordPolicy()
 {
-	# Backup of the original (in case of emergency)
+	# Backup Configuration Files
+	cp /etc/pam.d/common-password /etc/pam.d/common-password.bak
+	cp /etc/pam.d/common-auth /etc/pam/common-auth.bak
 	cp /etc/login.defs /etc/login.defs.bak
+	cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
 
-	sed -i 's/^#\?\(PASS_MAX_DAYS\)\s*.*/\1    90/' /etc/login.defs
-	sed -i 's/^#\?\(PASS_MIN_DAYS\)\s*.*/\1    1/' /etc/login.defs
-	sed -i 's/^#\?\(PASS_WARN_AGE\)\s*.*/\1    7/' /etc/login.defs
-	sed -i 's/^#\?\(PASS_MIN_LEN\)\s*.*/\1    12/' /etc/login.defs
+	#PAM Password Quality
+	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
+
+	#PAM Authentication
+	echo "auth required pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
+	echo "auth required pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
+
+	#Password Expiry Protocols
+	sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   90/' /etc/login.defs
+	sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS   1/' /etc/login.defs
+	sed -i 's/^PASS_WARN_AGE.*/PASS_WARN_AGE   14/' /etc/login.defs
+
+	#Root Login + Reset
+	sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+	systemctl restart sshd
 }
 
 #ACTIVATE FIREWALL:
@@ -357,26 +360,6 @@ configurePAM()
 {
 	#DONT BRICK THE COMPUTER
 	echo 'Testing'
-}
-
-#FIX ROOT LOGIN:
-#Turns permit root login to no in sshd config.
-fixRootLogin() 
-{
-	clear
-	echo 'Welcome to Fix Root Login, '$username'.'
-	echo
-	echo 'This will make sure users cannot log in as root.'
-	echo 'Searching now...'
-	echo
-	sshdConfig="/etc/ssh/sshd_config"
-	sshdFile="/etc/ssh/sshd"
-	
-	if [ -f $sshdConfig ]; then
-		sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdConfig;
-	elif [ -f $sshdFile ]; then
-		sed -i "s/PermitRootLogin=.*/PermitRootLogin=no/" $sshdFile;
-	fi
 }
 
 #CONFIGURE AUDITD:
