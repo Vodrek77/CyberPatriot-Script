@@ -4,13 +4,14 @@
 listOperations=(
 "1) Manage Users" 
 "2) Manage Groups" 
-"3) Activate Firewall" 
-"4) Full Update" 
+"3) Password Policy"
+"4) Activate Firewall" 
 "5) Configure PAM" 
 "6) Fix Root Login" 
 "7) Configure Auditd" 
 "8) Scan Crontab" 
 "9) Processes and Services" 
+"10) Full Update" 
 )
 
 #MAIN MENU:
@@ -41,16 +42,20 @@ mainMenu() {
 		manageUsers
 		echo
 		;;
-
+		
+		2)
+		echo
+		;;
+		
 		3)
 		echo
-		activateFirewall
+		passwordPolicy
 		echo
 		;;
 
 		4)
 		echo
-		fullUpdate
+		activateFirewall
 		echo
 		;;
 
@@ -81,6 +86,12 @@ mainMenu() {
 		9)
 		echo
 		processesAndServices
+		echo
+		;;
+		
+		10)
+		echo
+		fullUpdate
 		echo
 		;;
 		
@@ -131,56 +142,42 @@ activateMultiple() {
 	for ((a=0;a<${#opList[@]}; a++)); do
 		case ${opList[a]} in
 			1)
-			echo 'Activating: Manage Users'
-			echo
 			manageUsers
 			;;
 
 			2)
-			echo 'Activating: Manage Groups'
-			echo
 			;;
 
 			3)
-			echo 'Activating: Firewall'
-			echo
-			activateFirewall
+			passwordPolicy
 			;;
 
 			4)
-			echo 'Activating: Full Update'
-			echo
-			fullUpdate
+			activateFirewall
 			;;
 			
 			5)
-			echo 'Activating: Configure PAM'
-			echo
 			configurePAM
 			;;
 		
 			6)
-			echo 'Activating: Fix Root Login'
-			echo
 			fixRootLogin
 			;;
 			
 			7)
-			echo 'Activating: Configure Auditd'
-			echo
 			configureAuditd
 			;;
 			
 			8)
-			echo 'Activating: Scan Crontab'
-			echo
 			scanCrontab
 			;;
 			
 			9)
-			echo 'Activating: Processes and Services'
-			echo
 			processesAndServices
+			;;
+			
+			10)
+			fullUpdate
 			;;
 
 			*)
@@ -285,6 +282,27 @@ manageUsers()
 			echo "$user:$password" | sudo chpasswd
 		fi
 	done
+}
+
+manageGroups()
+{
+	echo "Still in development"
+}
+
+passwordPolicy()
+{
+	# Backup of the original (in case of emergency)
+	cp /etc/login.defs /etc/login.defs.bak
+
+	sed -i 's/^#\?\(PASS_MAX_DAYS\)\s*.*/\1    90/' /etc/login.defs
+	sed -i 's/^#\?\(PASS_MIN_DAYS\)\s*.*/\1    1/' /etc/login.defs
+	sed -i 's/^#\?\(PASS_WARN_AGE\)\s*.*/\1    7/' /etc/login.defs
+	sed -i 's/^#\?\(PASS_MIN_LEN\)\s*.*/\1    12/' /etc/login.defs
+
+	#Verify changes
+	echo "Updated /etc/login.defs:"
+	grep -E '^(PASS_MAX_DAYS|PASS_MIN_DAYS|PASS_WARN_AGE|PASS_MIN_LEN)' /etc/login.defs
+	sleep 5s
 }
 
 #ACTIVATE FIREWALL:
