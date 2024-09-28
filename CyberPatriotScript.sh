@@ -196,6 +196,8 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
+	allUsers=(${authAdmins[@]} ${authUsers[@]})
+
 	#Creates lists to be used in this function
 	missingUsers=()
 	unauthUsers=()
@@ -203,11 +205,9 @@ manageUsers()
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
 	
-	sleep 5s
-	
 	#Checks if there is any unauthorized users on the system
 	for user in "${systemUsers[@]}"; do
-		if [[ "${authUsers[*]}" == *"$user"* ]]; then
+		if [[ "${allUsers[*]}" == *"$user"* ]]; then
 			echo "Match Found: $user"
         	else
         		unauthUsers+=("$user")
@@ -225,9 +225,8 @@ manageUsers()
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
 	
 	#Gets missing users on the system
-	for user in "${authUsers[@]}"; do
+	for user in "${allUsers[@]}"; do
 		if [[ "${systemUsers[*]}" != *"$user"* ]]; then
-			echo "Missing User: $user"
 			missingUsers+=("$user")
 		fi
 	done
@@ -235,17 +234,18 @@ manageUsers()
 	#Adds any missing users
 	if [[ ${#missingUsers[@]} -gt 0 ]]; then
 		for user in "${missingUsers[@]}"; do
-			echo "Added User: $user"
-			sudo adduser --disabled-password --gecos $user "$user"
+			sudo useradd "$user"
 		done  
 	fi
 	
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
-	
-	echo ${authUsers[@]}
 	echo ${systemUsers[@]}
 	
-	sleep 60s
+	sleep 120s
+	
+	#ADMIN USERS
+	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
+	
 }
 
 #ACTIVATE FIREWALL:
@@ -473,23 +473,32 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 #USER MANAGER FILE:
-#Creates a manageUsers file that can be used for other methods.
+#Navigates to create a folder, then
+#Creates files that can be used for other methods.
+
+cd /home
+mkdir ScriptFiles
+cd ScriptFiles
+
+adminFile="manageAdmins.txt"
+if [ ! -f "$adminFile" ]; then
+	sudo touch manageAdmins.txt
+	sudo gedit manageAdmins.txt
+fi
+
 userFile="manageUsers.txt"
 if [ ! -f "$userFile" ]; then
-	echo 'Before the script starts, please enter users into the following file.'
-	echo 'Be sure to add all users, including yourself and users you wish to add.'
-	echo
-	echo 'Please do not forget to save (ctrl +s) the file.'
-	echo 'When you are done, please exit (ctrl +c) the file in this terminal.'
-	sleep 2s
 	sudo touch manageUsers.txt
 	sudo gedit manageUsers.txt
-	echo
-	echo
 fi
 
 #Assigns a list variable for all the users on the system
 mapfile -t authUsers < $userFile
+mapfile -t authAdmins < $adminFile
+
+allUsers=(${authUsers[@]} ${authAdmins[@]})
+
+echo ${allUsers[@]}
 
 #DBUS CHECK:
 #Ensures new terminals can be opened using Gnome
