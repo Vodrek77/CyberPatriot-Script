@@ -235,7 +235,7 @@ manageUsers()
 	
 	#Re-maps the file to include an updated list of users
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
-	echo ${systemUsers[@]}
+	clear
 	
 	#//////////
 	
@@ -270,6 +270,20 @@ manageUsers()
     		if [[ $found -eq 0 ]]; then
         		adduser "$user" sudo
     		fi
+	done
+	clear
+	
+	#//////////
+	
+	#PASSWORDS
+	echo "Please enter the password you wish to give users."
+	echo "DON'T FORGET TO WRITE IT DOWN!"
+	read password
+	
+	for user in "${systemUsers[@]}"; do
+		if [[ "$user" != "$username" ]]; then
+			echo "$user:$password" | sudo chpasswd
+		fi
 	done
 }
 
