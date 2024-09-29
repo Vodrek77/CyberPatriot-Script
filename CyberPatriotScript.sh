@@ -569,7 +569,7 @@ processesAndServices()
 
 restoreBackup()
 {
-	if [ -f /home/ScriptFiles/backupCheck ]; do
+	if [ -f /home/ScriptFiles/backupCheck ]; then
 		cp /home/ScriptFiles/common-auth.bak /etc/pam.d/common-auth
 		cp /home/ScriptFiles/common-password.bak /etc/pam.d/common-password
 		cp /home/ScriptFiles/login.defs.bak /etc/login.defs
