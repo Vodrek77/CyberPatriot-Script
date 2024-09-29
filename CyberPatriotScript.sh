@@ -11,6 +11,7 @@ listOperations=(
 "7) Scan Crontab" 
 "8) Processes and Services" 
 "9) Full Update" 
+"99) Restore Backup"
 )
 
 #MAIN MENU:
@@ -86,6 +87,10 @@ mainMenu() {
 		echo
 		fullUpdate
 		echo
+		;;
+		
+		99)
+		restoreBackup
 		;;
 		
 		*)
@@ -168,6 +173,10 @@ activateMultiple() {
 			9)
 			fullUpdate
 			;;
+			
+			99)
+			restoreBackup
+			;;
 
 			*)
 			;;
@@ -182,8 +191,11 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
+	echo "\nStarting Manage Users..." | tee -a /home/ScriptFiles/log.txt
+
 	#Combines files for a full list of expected users
 	allUsers=(${authAdmins[@]} ${authUsers[@]})
+	echo "Authorized Users:\n" ${allUsers[@]} | tee -a /home/ScriptFiles/log.txt
 	
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
@@ -199,6 +211,7 @@ manageUsers()
     		done
     		if [[ $found -eq 0 ]]; then
         		deluser --remove-home "$user"
+        		echo "Removed Unauthorized User - $user" | tee -a /home/ScriptFiles/log.txt
     		fi
 	done
 	
@@ -216,6 +229,7 @@ manageUsers()
     		done
     		if [[ $found -eq 0 ]]; then\
         		useradd "$user"
+        		echo "Added Missing User - $user" | tee -a /home/ScriptFiles/log.txt
     		fi
 	done
 	
@@ -227,6 +241,7 @@ manageUsers()
 	
 	#ADMIN USERS
 	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
+	echo "\nAuthorized Admins:\n" ${sudoers[@]} | tee -a /home/ScriptFiles/log.txt
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
@@ -239,6 +254,7 @@ manageUsers()
     		done
     		if [[ $found -eq 0 ]]; then
         		deluser "$user" sudo
+        		echo "Removed Unauthorized Admin Permissions - $user" | tee -a /home/ScriptFiles/log.txt
     		fi
 	done
 	
@@ -255,6 +271,7 @@ manageUsers()
     		done
     		if [[ $found -eq 0 ]]; then
         		adduser "$user" sudo
+        		echo "Added Missing Admin Permissions - $user" | tee -a /home/ScriptFiles/log.txt
     		fi
 	done
 	clear
@@ -262,13 +279,17 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
+	echo "\nChanging Passwords..." | tee - a /home/ScriptFiles/log.txt
+	
+	
 	echo "Please enter the password you wish to give users."
 	echo "DON'T FORGET TO WRITE IT DOWN!"
 	read password
 	
 	for user in "${systemUsers[@]}"; do
 		if [[ "$user" != "$username" ]]; then
-			echo "$user:$password" | sudo chpasswd
+			echo "$user:$password" | chpasswd
+			echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
 		fi
 	done
 }
@@ -335,6 +356,9 @@ done
 
 passwordPolicy()
 {
+	#Flag File for Restoration
+	touch /home/ScriptFiles/backupCheck
+	
 	# Backup Configuration Files
 	cp /etc/pam.d/common-password /home/ScriptFiles/common-password.bak
 	cp /etc/pam.d/common-auth /home/ScriptFiles/common-auth.bak
@@ -546,6 +570,15 @@ processesAndServices()
 	done
 }
 
+restoreBackup()
+{
+	if [ -f /home/ScriptFiles/backupCheck ]; do
+		cp /home/ScriptFiles/common-auth.bak /etc/pam.d/common-auth
+		cp /home/ScriptFiles/common-password.bak /etc/pam.d/common-password
+		cp /home/ScriptFiles/login.defs.bak /etc/login.defs
+		cp /home/ScriptFiles/ssh/sshd_config.bak /etc/ssh/sshd_config
+	fi
+}
 
 #BELOW ARE RESOURCES FOR STARTING THE SCRIPT:
 
@@ -568,16 +601,26 @@ cd /home
 mkdir ScriptFiles
 cd ScriptFiles
 
+logFile="log.txt"
+if [ ! -f "$logFile" ]; do
+	touch log.txt
+	echo "Log Created" | tee -a /home/ScriptFiles/log.txt
+fi
+
 adminFile="manageAdmins.txt"
 if [ ! -f "$adminFile" ]; then
 	touch manageAdmins.txt
 	gedit manageAdmins.txt
+	
+	echo "Admin File Complete" | tee -a /home/ScriptFiles/log.txt
 fi
 
 userFile="manageUsers.txt"
 if [ ! -f "$userFile" ]; then
 	touch manageUsers.txt
 	gedit manageUsers.txt
+	
+	echo "Admin File Complete" | tee -a /home/ScriptFiles/log.txt
 fi
 
 #Assigns a list variable for all the users on the system
@@ -591,14 +634,12 @@ echo ${allUsers[@]}
 #DBUS CHECK:
 #Ensures new terminals can be opened using Gnome
 if ! apt list --installed | grep -q "dbus-x11"; then
-	echo 'dbus-x11 is not installed. Installing now...'
 	apt-get install dbus-x11
 fi
 
 #NETSTAT CHECK:
 #Ensures the user has net-tools downloaded for the Processes and Services method.'
 if ! apt list --installed | grep -q "net-tools"; then
-	echo 'Net-Tools is not installed. Installing now...'
 	apt install net-tools
 fi
 
