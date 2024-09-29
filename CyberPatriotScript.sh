@@ -191,11 +191,11 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
-	echo "Starting Manage Users..." | tee -a /home/ScriptFiles/log.txt
+	echo "\nStarting Manage Users..." | tee -a /home/ScriptFiles/log.txt
 
 	#Combines files for a full list of expected users
 	allUsers=(${authAdmins[@]} ${authUsers[@]})
-	echo "Authorized Users: ${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
+	echo "Authorized Users:\n" ${allUsers[@]} | tee -a /home/ScriptFiles/log.txt
 	
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
@@ -240,8 +240,8 @@ manageUsers()
 	#//////////
 	
 	#ADMIN USERS
-	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
-	echo "Authorized Admins: ${sudoers[@]}" | tee -a /home/ScriptFiles/log.txt
+	read -a sudoers <<< $(echo "$(grep '^sudo:' /etc/group | cut -d ':' -f 4)" | tr ',' ' ')
+	echo "\nAuthorized Admins:\n" ${sudoers[@]} | tee -a /home/ScriptFiles/log.txt
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
@@ -277,7 +277,7 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
-	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
+	echo "\nChanging Passwords..." | tee - a /home/ScriptFiles/log.txt
 	
 	
 	echo "Please enter the password you wish to give users."
@@ -336,6 +336,7 @@ while true; do
 done
 
 while true; do
+do
     echo "Do you want to remove a user from a group?"
     read input
     if [ "$input" == "y" ]; then
@@ -569,7 +570,7 @@ processesAndServices()
 
 restoreBackup()
 {
-	if [ -f /home/ScriptFiles/backupCheck ]; then
+	if [ -f /home/ScriptFiles/backupCheck ]; do
 		cp /home/ScriptFiles/common-auth.bak /etc/pam.d/common-auth
 		cp /home/ScriptFiles/common-password.bak /etc/pam.d/common-password
 		cp /home/ScriptFiles/login.defs.bak /etc/login.defs
@@ -599,7 +600,7 @@ mkdir ScriptFiles
 cd ScriptFiles
 
 logFile="log.txt"
-if [ ! -f "$logFile" ]; then
+if [ ! -f "$logFile" ]; do
 	touch log.txt
 	echo "Log Created" | tee -a /home/ScriptFiles/log.txt
 fi
