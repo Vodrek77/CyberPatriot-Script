@@ -226,7 +226,7 @@ manageUsers()
 	#//////////
 	
 	#ADMIN USERS
-	read -a sudoers <<< $(echo "$(grep '^sudo:' /etc/group | cut -d ':' -f 4)" | tr ',' ' ')
+	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
@@ -241,6 +241,8 @@ manageUsers()
         		deluser "$user" sudo
     		fi
 	done
+	
+	sleep 60s
 	
 	#Adds any Admins not on the system already
 	for user in "${authAdmins[@]}"; do
@@ -288,7 +290,7 @@ passwordPolicy()
 	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
 
 	#PAM Authentication
-	sed -i 's/^auth\s*\[success=2\s*default=ignore\]\s*pam_unix\.so\s*nullok/auth [success=2 default=ignore] pam_unix.so/' /etc/pam.d/common-auth
+	sed -i 's/^auth\s*\[success=2\s*default=ignore\]\s*pam_unix\.so\s*nullok/auth	[success=2 default=ignore]	pam_unix.so/' /etc/pam.d/common-auth
 	echo "auth required pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
 	echo "auth required pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
 
@@ -322,8 +324,7 @@ activateFirewall()
 	echo; 
 	echo 'Firewall has been installed and activated.';
 	echo
-	echo 'Closing terminal...'
-	sleep 2s; > $fifo"
+	echo 'Closing terminal...' > $fifo"
 	
 	read < "$fifo"
 }
@@ -347,8 +348,7 @@ fullUpdate()
 	echo; 
 	echo 'Update Complete!'; 
 	echo;
-	echo 'Terminal closing...'; 
-	sleep 2s; > $fifo"
+	echo 'Terminal closing...'; > $fifo"
 	
 	read < "$fifo"
 }
@@ -383,8 +383,7 @@ configureAuditd()
 	echo;
 	echo 'Activation Complete!';
 	echo;
-	echo 'Terminal closing...';
-	sleep 2s; > $fifo"
+	echo 'Terminal closing...'; > $fifo"
 	
 	read < "$fifo"
 }
@@ -539,7 +538,6 @@ echo ${allUsers[@]}
 if ! apt list --installed | grep -q "dbus-x11"; then
 	echo 'dbus-x11 is not installed. Installing now...'
 	apt-get install dbus-x11
-	echo
 fi
 
 #NETSTAT CHECK:
@@ -547,7 +545,6 @@ fi
 if ! apt list --installed | grep -q "net-tools"; then
 	echo 'Net-Tools is not installed. Installing now...'
 	apt install net-tools
-	echo
 fi
 
 #USERNAME INPUT:
