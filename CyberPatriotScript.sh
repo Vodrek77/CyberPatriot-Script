@@ -549,6 +549,7 @@ fi
 
 #USERNAME INPUT:
 #Gets the username of the user to later be used.
+clear
 echo 'What is your Username?'
 read username
 echo
