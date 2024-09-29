@@ -275,7 +275,62 @@ manageUsers()
 
 manageGroups()
 {
-	echo "Still in development"
+	while true; do
+    echo "Do you want to add a new group?"
+    read input
+    if [ "$input" == "y" ]; then
+        echo "Please enter the name of the Group"
+        read input 
+        echo `sudo groupadd $input`
+        clear
+    else
+        break
+    fi
+done
+
+while true; do
+    echo "Do you want to delete a group?"
+    read input
+    if [ "$input" == "y" ]; then
+        echo "Please enter the name of the Group"
+        read input 
+        sudo groupdel $input
+        clear
+    else
+        break
+    fi
+done
+
+while true; do
+    echo "Do you want to add a user to a group?"
+    read input
+    if [ "$input" == "y" ]; then
+        echo "What is the group name?"
+        read input 
+        echo "What is the username?"
+        read username
+        sudo gpasswd -a $username $input
+        clear
+    else
+        break
+    fi
+done
+
+while true; do
+do
+    echo "Do you want to remove a user from a group?"
+    read input
+    if [ "$input" == "y" ]; then
+        echo "What is the group name?"
+        read input 
+        echo "What is the username?"
+        read username
+        sudo gpasswd -d $username $input
+        clear
+    else
+        break
+    fi
+done
 }
 
 passwordPolicy()
