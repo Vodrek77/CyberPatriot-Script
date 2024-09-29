@@ -181,6 +181,7 @@ activateMultiple() {
 manageUsers() 
 {
 	clear
+	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Starting Manage Users..." | tee -a /home/ScriptFiles/log.txt
 
 	#Combines files for a full list of expected users
@@ -270,6 +271,7 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
+	echo | tee - a /home/ScriptFiles/log.txt
 	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
 	
@@ -364,17 +366,18 @@ passwordPolicy()
 	
 	# Backup Configuration Files
 	cp /etc/pam.d/common-password /home/ScriptFiles/common-password.bak
-	echo "Created Backup for: /etc/pam.d/common-password at /home/ScriptFiles/common-password.bak"
+	echo "Created Backup for: /etc/pam.d/common-password at /home/ScriptFiles/common-password.bak" | tee -a /home/ScriptFiles/log.txt
 	
 	cp /etc/pam.d/common-auth /home/ScriptFiles/common-auth.bak
-	echo "Created Backup for: /etc/pam.d/common-auth at /home/ScriptFiles/common-auth.bak"
+	echo "Created Backup for: /etc/pam.d/common-auth at /home/ScriptFiles/common-auth.bak" | tee -a /home/ScriptFiles/log.txt
 	
 	cp /etc/login.defs /home/ScriptFiles/login.defs.bak
-	echo "Created Backup for: /etc/login.defs at /home/ScriptFiles/login.defs.bak"
+	echo "Created Backup for: /etc/login.defs at /home/ScriptFiles/login.defs.bak" | tee -a /home/ScriptFiles/log.txt
 	
 	cp /etc/ssh/sshd_config /home/ScriptFiles/sshd_config.bak
-	echo "Created Backup for: /etc/ssh/sshd_config at /home/ScriptFiles/sshd_config.bak"
+	echo "Created Backup for: /etc/ssh/sshd_config at /home/ScriptFiles/sshd_config.bak" | tee -a /home/ScriptFiles/log.txt
 
+	echo | tee -a /home/ScriptFiles/log.txt
 
 	#PAM Password Quality
 	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
@@ -404,6 +407,7 @@ passwordPolicy()
 activateFirewall() 
 {
 	clear
+	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Activating Firewall..." | tee -a /home/ScriptFiles/log.txt
 	
 	#mkfifo "$fifo"
@@ -447,11 +451,9 @@ fullUpdate()
 configureAuditd() 
 {
 	clear
-	echo 'Welcome to Configure Auditd, '$username'.'
-	echo
-	echo 'Installing and activating auditd.'
-	echo 'Opening new terminal now...'
-	echo
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Configuring Auditd..." | tee -a /home/ScriptFiles/log.txt
+	
 	#mkfifo "$fifo"
 	gnome-terminal -- bash -c "
 	echo 'Installing auditd.';
@@ -637,7 +639,7 @@ if [ ! -f "$userFile" ]; then
 	touch manageUsers.txt
 	gedit manageUsers.txt
 	
-	echo "Admin File Complete" | tee -a /home/ScriptFiles/log.txt
+	echo "User File Complete" | tee -a /home/ScriptFiles/log.txt
 fi
 
 #Assigns a list variable for all the users on the system
