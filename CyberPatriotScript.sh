@@ -277,7 +277,7 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
-	echo "Changing Passwords..." | tee - a /home/ScriptFiles/log.txt
+	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
 	
 	echo "Please enter the password you wish to give users."
