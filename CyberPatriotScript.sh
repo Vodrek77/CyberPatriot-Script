@@ -44,6 +44,8 @@ mainMenu() {
 		
 		2)
 		echo
+		manageGroups
+		echo
 		;;
 		
 		3)
@@ -137,6 +139,7 @@ activateMultiple() {
 			;;
 
 			2)
+			manageGroups
 			;;
 
 			3)
