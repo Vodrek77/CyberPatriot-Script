@@ -352,31 +352,48 @@ manageGroups()
 
 passwordPolicy()
 {
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Working on Password Policy..." | tee -a /home/ScriptFiles/log.txt
+
 	#Flag File for Restoration
 	touch /home/ScriptFiles/backupCheck
+	echo "Created the Flag File, backupCheck" | tee -a /home/ScriptFiles/log.txt
 	
 	# Backup Configuration Files
 	cp /etc/pam.d/common-password /home/ScriptFiles/common-password.bak
+	echo "Created Backup for: /etc/pam.d/common-password at /home/ScriptFiles/common-password.bak"
+	
 	cp /etc/pam.d/common-auth /home/ScriptFiles/common-auth.bak
+	echo "Created Backup for: /etc/pam.d/common-auth at /home/ScriptFiles/common-auth.bak"
+	
 	cp /etc/login.defs /home/ScriptFiles/login.defs.bak
+	echo "Created Backup for: /etc/login.defs at /home/ScriptFiles/login.defs.bak"
+	
 	cp /etc/ssh/sshd_config /home/ScriptFiles/sshd_config.bak
+	echo "Created Backup for: /etc/ssh/sshd_config at /home/ScriptFiles/sshd_config.bak"
+
 
 	#PAM Password Quality
 	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
+	echo "Modified /etc/pam.d/common-password" | tee -a /home/ScriptFiles/log.txt
 
 	#PAM Authentication
 	sed -i 's/^auth\s*\[success=2\s*default=ignore\]\s*pam_unix\.so\s*nullok/auth	[success=2 default=ignore]	pam_unix.so/' /etc/pam.d/common-auth
 	#echo "auth	required			pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
 	#echo "auth	required			pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
+	echo "Modified /etc/pam.d/common-auth" | tee -a /home/ScriptFiles/log.txt
 
 	#Password Expiry Protocols
 	sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   30/' /etc/login.defs
 	sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS   5/' /etc/login.defs
 	sed -i 's/^PASS_WARN_AGE.*/PASS_WARN_AGE   5/' /etc/login.defs
+	echo "Modified /etc/login.defs" | tee -a /home/ScriptFiles/log.txt
 
 	#Root Login + Reset
 	sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
+	echo "Modified /etc/ssh/sshd_config" | tee -a /home/ScriptFiles/log.txt
 	systemctl restart sshd
+	echo "Restarted SSHD" | tee -a /home/ScriptFiles/log.txt
 }
 
 #ACTIVATE FIREWALL:
