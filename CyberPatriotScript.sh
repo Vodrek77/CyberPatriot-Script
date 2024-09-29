@@ -286,6 +286,9 @@ manageUsers()
 
 manageGroups()
 {
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Working on Groups..." | tee -a /home/ScriptFiles/log.txt	
+	
 	while true; do
 		echo "Do you want to add a new group?"
 		read input
@@ -293,6 +296,7 @@ manageGroups()
 			echo "Please enter the name of the Group"
 			read input 
 			groupadd $input
+			echo "Added Group: $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -306,6 +310,7 @@ manageGroups()
 			echo "Please enter the name of the Group"
 			read input 
 			groupdel $input
+			echo "Removed Group: $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -321,6 +326,7 @@ manageGroups()
 			echo "What is the username?"
 			read username
 			gpasswd -a $username $input
+			echo "Added User - $username, Group: $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -336,6 +342,7 @@ manageGroups()
 			echo "What is the username?"
 			read username
 			gpasswd -d $username $input
+			echo "Removed User - $username, Group: $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
