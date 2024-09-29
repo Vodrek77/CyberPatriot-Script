@@ -380,8 +380,6 @@ passwordPolicy()
 	cp /etc/ssh/sshd_config /home/ScriptFiles/sshd_config.bak
 	echo "Created Backup for: /etc/ssh/sshd_config at /home/ScriptFiles/sshd_config.bak" | tee -a /home/ScriptFiles/log.txt
 
-	echo | tee -a /home/ScriptFiles/log.txt
-
 	#PAM Password Quality
 	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
 	echo "Modified /etc/pam.d/common-password" | tee -a /home/ScriptFiles/log.txt
@@ -472,6 +470,8 @@ configureAuditd()
 	echo 'Terminal closing...'; > $fifo"
 	
 	read < "$fifo"
+	
+	echo "Auditd Installed and Activated" | tee -a /home/ScriptFiles/log.txt
 }
 
 #SCAN CRONTAB:
