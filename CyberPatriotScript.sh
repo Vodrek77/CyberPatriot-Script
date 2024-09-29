@@ -490,6 +490,7 @@ scanCrontab()
 		echo
 		for ((i=0; i<${#authUsers[@]}; i++)); do
 			if [ -f $cronDir/"${authUsers[i]}" ]; then
+				echo "Crontab Found - ${authUsers[i]}" | tee -a /home/ScriptFiles/log.txt
 				echo ${authUsers[i]}' has a Crontab, show it? (y/n)'
 				read input
 				if [ "$input" = "y" ]; then
@@ -574,11 +575,25 @@ processesAndServices()
 
 restoreBackup()
 {
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Searching for Backups..." | tee -a /home/ScriptFiles/log.txt
+	
 	if [ -f /home/ScriptFiles/backupCheck ]; then
+		echo "Backups Found, Restoring..." | tee -a /home/ScriptFiles/log.txt
+		
 		cp /home/ScriptFiles/common-auth.bak /etc/pam.d/common-auth
+		echo "Backup Restored for: /etc/pam.d/common-auth from /home/ScriptFiles/common-auth.bak" | tee -a /home/ScriptFiles/log.txt
+		
 		cp /home/ScriptFiles/common-password.bak /etc/pam.d/common-password
+		echo "Backup Restored for: /etc/pam.d/common-password from /home/ScriptFiles/common-password.bak" | tee -a /home/ScriptFiles/log.txt
+		
 		cp /home/ScriptFiles/login.defs.bak /etc/login.defs
+		echo "Backup Restored for: /etc/login.defs from /home/ScriptFiles/login.defs.bak" | tee -a /home/ScriptFiles/log.txt
+		
 		cp /home/ScriptFiles/ssh/sshd_config.bak /etc/ssh/sshd_config
+		echo "Backup Restored for: /etc/ssh/sshd_config from /home/ScriptFiles/sshd_config.bak" | tee -a /home/ScriptFiles/log.txt
+	else
+		echo "No Backups Found" | tee -a /home/ScriptFiles/log.txt
 	fi
 }
 
