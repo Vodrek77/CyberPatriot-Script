@@ -336,7 +336,6 @@ while true; do
 done
 
 while true; do
-do
     echo "Do you want to remove a user from a group?"
     read input
     if [ "$input" == "y" ]; then
@@ -600,7 +599,7 @@ mkdir ScriptFiles
 cd ScriptFiles
 
 logFile="log.txt"
-if [ ! -f "$logFile" ]; do
+if [ ! -f "$logFile" ]; then
 	touch log.txt
 	echo "Log Created" | tee -a /home/ScriptFiles/log.txt
 fi
