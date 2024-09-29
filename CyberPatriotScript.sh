@@ -226,20 +226,18 @@ manageUsers()
 	#//////////
 	
 	#ADMIN USERS
-	sudoers=$(grep '^sudo:' /etc/group | cut -d ':' -f 4 | tr ',' '\n')
+	read -a sudoers <<< $(echo "$(grep '^sudo:' /etc/group | cut -d ':' -f 4)" | tr ',' ' ')
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
 		found=0
 		for authorizedUser in "${authAdmins[@]}"; do
         		if [[ "$user" == "$authorizedUser" ]]; then
-            			echo "Match Found: $user"
             			found=1
             			break
         		fi
     		done
     		if [[ $found -eq 0 ]]; then
-        		echo "Unauthorized user found: $user. Removing..."
         		deluser "$user" sudo
     		fi
 	done
