@@ -180,6 +180,7 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
+	clear
 	echo "Starting Manage Users..." | tee -a /home/ScriptFiles/log.txt
 
 	#Combines files for a full list of expected users
@@ -286,6 +287,7 @@ manageUsers()
 
 manageGroups()
 {
+	clear
 	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Working on Groups..." | tee -a /home/ScriptFiles/log.txt	
 	
@@ -352,6 +354,7 @@ manageGroups()
 
 passwordPolicy()
 {
+	clear
 	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Working on Password Policy..." | tee -a /home/ScriptFiles/log.txt
 
@@ -401,16 +404,13 @@ passwordPolicy()
 activateFirewall() 
 {
 	clear
-	echo 'Welcome to Activate Firewall, '$username'.'
-	echo
-	echo 'This will install and enable Uncomplicated Firewall on this device.'
-	echo 'Opening new terminal now...'
-	echo
+	echo "Activating Firewall..." | tee -a /home/ScriptFiles/log.txt
+	
 	#mkfifo "$fifo"
 	gnome-terminal -- bash -c "
 	echo 'Installing Uncomplicated Firewall now!'; 
 	sudo apt install ufw; 
-	echo 'Installation Complete!'; 
+	echo 'Installation Complete'; 
 	echo 'Enabling Uncomplicated Firewall now.'; 
 	sudo ufw enable; 
 	echo; 
@@ -419,6 +419,8 @@ activateFirewall()
 	echo 'Closing terminal...' > $fifo"
 	
 	read < "$fifo"
+	
+	echo "UFW Installed and Activated" | tee -a /home/ScriptFiles/log.txt
 }
 
 #FULL UPDATE:
@@ -426,13 +428,8 @@ activateFirewall()
 fullUpdate() 
 {
 	clear
-	echo 'Welcome to Full Update, '$username'.'
-	echo
-	echo 'This will update all applications on this machine.'
-	echo 'Opening new terminal now...'
-	echo
-	#mkfifo "$fifo"
 	
+	#mkfifo "$fifo"
 	gnome-terminal -- bash -c "
 	echo 'Beginning Update now'; 
 	sudo apt-get update -y; 
@@ -443,14 +440,6 @@ fullUpdate()
 	echo 'Terminal closing...'; > $fifo"
 	
 	read < "$fifo"
-}
-
-#CONFIGURE PAM:
-#Configures PAM to harden the system.
-configurePAM() 
-{
-	#DONT BRICK THE COMPUTER
-	echo 'Testing'
 }
 
 #CONFIGURE AUDITD:
