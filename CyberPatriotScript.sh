@@ -271,7 +271,7 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
-	echo | tee - a /home/ScriptFiles/log.txt
+	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
 	
