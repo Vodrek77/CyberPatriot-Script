@@ -191,11 +191,11 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
-	echo "\nStarting Manage Users..." | tee -a /home/ScriptFiles/log.txt
+	echo "Starting Manage Users..." | tee -a /home/ScriptFiles/log.txt
 
 	#Combines files for a full list of expected users
 	allUsers=(${authAdmins[@]} ${authUsers[@]})
-	echo "Authorized Users:\n" ${allUsers[@]} | tee -a /home/ScriptFiles/log.txt
+	echo "Authorized Users: ${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
 	
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
@@ -241,7 +241,7 @@ manageUsers()
 	
 	#ADMIN USERS
 	read -a sudoers <<< $(echo "$(grep '^sudo:' /etc/group | cut -d ':' -f 4)" | tr ',' ' ')
-	echo "\nAuthorized Admins:\n" ${sudoers[@]} | tee -a /home/ScriptFiles/log.txt
+	echo "Authorized Admins: ${sudoers[@]}" | tee -a /home/ScriptFiles/log.txt
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
@@ -277,7 +277,7 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
-	echo "\nChanging Passwords..." | tee - a /home/ScriptFiles/log.txt
+	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
 	
 	echo "Please enter the password you wish to give users."
