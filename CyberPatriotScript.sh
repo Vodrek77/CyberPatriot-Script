@@ -258,8 +258,6 @@ manageUsers()
     		fi
 	done
 	
-	sleep 60s
-	
 	#Adds any Admins not on the system already
 	for user in "${authAdmins[@]}"; do
     		found=0
