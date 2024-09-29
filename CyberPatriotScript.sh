@@ -291,8 +291,8 @@ passwordPolicy()
 
 	#PAM Authentication
 	sed -i 's/^auth\s*\[success=2\s*default=ignore\]\s*pam_unix\.so\s*nullok/auth	[success=2 default=ignore]	pam_unix.so/' /etc/pam.d/common-auth
-	echo "auth	required			pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
-	echo "auth	required			pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
+	#echo "auth	required			pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
+	#echo "auth	required			pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
 
 	#Password Expiry Protocols
 	sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   90/' /etc/login.defs
