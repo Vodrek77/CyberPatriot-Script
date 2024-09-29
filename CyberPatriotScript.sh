@@ -6,11 +6,10 @@ listOperations=(
 "2) Manage Groups" 
 "3) Password Policy"
 "4) Activate Firewall" 
-"5) Configure PAM" 
-"6) Configure Auditd" 
-"7) Scan Crontab" 
-"8) Processes and Services" 
-"9) Full Update" 
+"5) Configure Auditd" 
+"6) Scan Crontab" 
+"7) Processes and Services" 
+"8) Full Update" 
 "99) Restore Backup"
 )
 
@@ -58,32 +57,26 @@ mainMenu() {
 		activateFirewall
 		echo
 		;;
-
-		5)
-		echo
-		configurePAM
-		echo
-		;;
 		
-		6)
+		5)
 		echo
 		configureAuditd
 		echo
 		;;
 		
-		7)
+		6)
 		echo
 		scanCrontab
 		echo
 		;;
 		
-		8)
+		7)
 		echo
 		processesAndServices
 		echo
 		;;
 		
-		9)
+		8)
 		echo
 		fullUpdate
 		echo
@@ -153,24 +146,20 @@ activateMultiple() {
 			4)
 			activateFirewall
 			;;
-			
-			5)
-			configurePAM
-			;;
 		
-			6)
+			5)
 			configureAuditd
 			;;
 			
-			7)
+			6)
 			scanCrontab
 			;;
 			
-			8)
+			7)
 			processesAndServices
 			;;
 			
-			9)
+			8)
 			fullUpdate
 			;;
 			
@@ -195,7 +184,8 @@ manageUsers()
 
 	#Combines files for a full list of expected users
 	allUsers=(${authAdmins[@]} ${authUsers[@]})
-	echo "Authorized Users: ${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
+	echo "Authorized Users:" | tee -a /home/ScriptFiles/log.txt
+	echo "${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
 	
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
@@ -241,7 +231,9 @@ manageUsers()
 	
 	#ADMIN USERS
 	read -a sudoers <<< $(echo "$(grep '^sudo:' /etc/group | cut -d ':' -f 4)" | tr ',' ' ')
-	echo "Authorized Admins: ${sudoers[@]}" | tee -a /home/ScriptFiles/log.txt
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Authorized Admins:" | tee -a /home/ScriptFiles/log.txt
+	echo "${sudoers[@]}" | tee -a /home/ScriptFiles/log.txt
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
@@ -295,60 +287,60 @@ manageUsers()
 manageGroups()
 {
 	while true; do
-    echo "Do you want to add a new group?"
-    read input
-    if [ "$input" == "y" ]; then
-        echo "Please enter the name of the Group"
-        read input 
-        echo `sudo groupadd $input`
-        clear
-    else
-        break
-    fi
-done
+		echo "Do you want to add a new group?"
+		read input
+		if [ "$input" == "y" ]; then
+			echo "Please enter the name of the Group"
+			read input 
+			groupadd $input
+			clear
+		else
+			break
+		fi
+	done
 
-while true; do
-    echo "Do you want to delete a group?"
-    read input
-    if [ "$input" == "y" ]; then
-        echo "Please enter the name of the Group"
-        read input 
-        sudo groupdel $input
-        clear
-    else
-        break
-    fi
-done
+	while true; do
+		echo "Do you want to delete a group?"
+		read input
+		if [ "$input" == "y" ]; then
+			echo "Please enter the name of the Group"
+			read input 
+			groupdel $input
+			clear
+		else
+			break
+		fi
+	done
 
-while true; do
-    echo "Do you want to add a user to a group?"
-    read input
-    if [ "$input" == "y" ]; then
-        echo "What is the group name?"
-        read input 
-        echo "What is the username?"
-        read username
-        sudo gpasswd -a $username $input
-        clear
-    else
-        break
-    fi
-done
+	while true; do
+		echo "Do you want to add a user to a group?"
+		read input
+		if [ "$input" == "y" ]; then
+			echo "What is the group name?"
+			read input 
+			echo "What is the username?"
+			read username
+			gpasswd -a $username $input
+			clear
+		else
+			break
+		fi
+	done
 
-while true; do
-    echo "Do you want to remove a user from a group?"
-    read input
-    if [ "$input" == "y" ]; then
-        echo "What is the group name?"
-        read input 
-        echo "What is the username?"
-        read username
-        sudo gpasswd -d $username $input
-        clear
-    else
-        break
-    fi
-done
+	while true; do
+		echo "Do you want to remove a user from a group?"
+		read input
+		if [ "$input" == "y" ]; then
+			echo "What is the group name?"
+			read input 
+			echo "What is the username?"
+			read username
+			gpasswd -d $username $input
+			clear
+		else
+			break
+		fi
+	done
 }
 
 passwordPolicy()
@@ -371,9 +363,9 @@ passwordPolicy()
 	#echo "auth	required			pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
 
 	#Password Expiry Protocols
-	sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   90/' /etc/login.defs
-	sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS   1/' /etc/login.defs
-	sed -i 's/^PASS_WARN_AGE.*/PASS_WARN_AGE   14/' /etc/login.defs
+	sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   30/' /etc/login.defs
+	sed -i 's/^PASS_MIN_DAYS.*/PASS_MIN_DAYS   5/' /etc/login.defs
+	sed -i 's/^PASS_WARN_AGE.*/PASS_WARN_AGE   5/' /etc/login.defs
 
 	#Root Login + Reset
 	sed -i 's/^PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
