@@ -281,18 +281,18 @@ manageGroups()
 passwordPolicy()
 {
 	# Backup Configuration Files
-	cp /etc/pam.d/common-password /etc/pam.d/common-password.bak
-	cp /etc/pam.d/common-auth /etc/pam/common-auth.bak
-	cp /etc/login.defs /etc/login.defs.bak
-	cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+	cp /etc/pam.d/common-password /home/ScriptFiles/common-password.bak
+	cp /etc/pam.d/common-auth /home/ScriptFiles/common-auth.bak
+	cp /etc/login.defs /home/ScriptFiles/login.defs.bak
+	cp /etc/ssh/sshd_config /home/ScriptFiles/sshd_config.bak
 
 	#PAM Password Quality
 	sed -i 's/^password.*pam_pwquality.so.*/password requisite pam_pwquality.so retry=3 minlen=12 ucredit=-1 lcredit=-1 dcredit=-1 ocredit=-1 maxrepeat=3 maxclassrepeat=2/' /etc/pam.d/common-password
 
 	#PAM Authentication
 	sed -i 's/^auth\s*\[success=2\s*default=ignore\]\s*pam_unix\.so\s*nullok/auth	[success=2 default=ignore]	pam_unix.so/' /etc/pam.d/common-auth
-	echo "auth required pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
-	echo "auth required pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
+	echo "auth	required			pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
+	echo "auth	required			pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
 
 	#Password Expiry Protocols
 	sed -i 's/^PASS_MAX_DAYS.*/PASS_MAX_DAYS   90/' /etc/login.defs
