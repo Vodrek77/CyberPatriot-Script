@@ -362,8 +362,10 @@ passwordPolicy()
 	echo "Working on Password Policy..." | tee -a /home/ScriptFiles/log.txt
 
 	#Flag File for Restoration
-	touch /home/ScriptFiles/backupCheck
-	echo "Created the Flag File, backupCheck" | tee -a /home/ScriptFiles/log.txt
+	if [ ! -f /home/ScriptFiles/backupCheck ]; then
+		touch /home/ScriptFiles/backupCheck
+		echo "Created the Flag File, backupCheck" | tee -a /home/ScriptFiles/log.txt
+	fi
 	
 	# Backup Configuration Files
 	cp /etc/pam.d/common-password /home/ScriptFiles/common-password.bak
@@ -678,10 +680,6 @@ clear
 echo 'What is your Username?'
 read username
 echo
-
-#INITIALIZE MKFIFO:
-#Starts mkfifo to ensure functions and windows open sequentially.
-mkfifo fifo
 
 #PROGRAM START:
 #Calls the main menu to start the program.
