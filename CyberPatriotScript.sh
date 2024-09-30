@@ -9,7 +9,8 @@ listOperations=(
 "5) Configure Auditd" 
 "6) Scan Crontab" 
 "7) Processes and Services" 
-"8) Full Update" 
+"8) Automatic Updates"
+"9) Full Update" 
 "99) Restore Backup"
 )
 
@@ -31,57 +32,43 @@ mainMenu() {
 	read input
 	case $((input)) in
 		0)
-		echo
 		activateMultiple
-		echo
 		;;
 		
 		1)
-		echo
 		manageUsers
-		echo
 		;;
 		
 		2)
-		echo
 		manageGroups
-		echo
 		;;
 		
 		3)
-		echo
 		passwordPolicy
-		echo
 		;;
 
 		4)
-		echo
 		activateFirewall
-		echo
 		;;
 		
 		5)
-		echo
 		configureAuditd
-		echo
 		;;
 		
 		6)
-		echo
 		scanCrontab
-		echo
 		;;
 		
 		7)
-		echo
 		processesAndServices
-		echo
 		;;
 		
 		8)
-		echo
+		automaticUpdates
+		;;
+		
+		9)
 		fullUpdate
-		echo
 		;;
 		
 		99)
@@ -163,6 +150,10 @@ activateMultiple() {
 			;;
 			
 			8)
+			automaticUpdates
+			;;
+			
+			9)
 			fullUpdate
 			;;
 			
@@ -576,6 +567,50 @@ processesAndServices()
 			break
 		fi
 	done
+}
+
+automaticUpdates()
+{
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Configuring automatic updates..." | tee -a /home/ScriptFiles/log.txt
+	
+	configFile="/etc/apt/apt.conf.d/10periodic"
+	
+	#Checks if unattended-upgrades is installed, if not, installs it
+	if ! dpkg -l | grep -q unattended-upgrades; then
+    		apt-get install -y unattended-upgrades
+    		echo "Installed unattended-upgrades" | tee -a /home/ScriptFiles/log.txt
+	fi
+
+	# Ensure the file exists
+	if [ ! -f "$configFile" ]; then
+		touch "$configFile"
+		echo "Created $configFile" | tee -a /home/ScriptFiles/log.txt
+	fi
+
+	# Update the necessary configuration using sed
+	sed -i '/APT::Periodic::Update-Package-Lists/c\APT::Periodic::Update-Package-Lists "1";' "$configFile"
+	sed -i '/APT::Periodic::Download-Upgradeable-Packages/c\APT::Periodic::Download-Upgradeable-Packages "1";' "$configFile"
+	sed -i '/APT::Periodic::AutocleanInterval/c\APT::Periodic::AutocleanInterval "7";' "$configFile"
+	sed -i '/APT::Periodic::Unattended-Upgrade/c\APT::Periodic::Unattended-Upgrade "1";' "$configFile"
+
+	# Add lines if they do not exist in the file
+	grep -q 'APT::Periodic::Update-Package-Lists' "$configFile" || echo 'APT::Periodic::Update-Package-Lists "1";' | tee -a "$configFile"
+	grep -q 'APT::Periodic::Download-Upgradeable-Packages' "$configFile" || echo 'APT::Periodic::Download-Upgradeable-Packages "1";' | tee -a "$configFile"
+	grep -q 'APT::Periodic::AutocleanInterval' "$configFile" || echo 'APT::Periodic::AutocleanInterval "7";' | tee -a "$configFile"
+	grep -q 'APT::Periodic::Unattended-Upgrade' "$configFile" || echo 'APT::Periodic::Unattended-Upgrade "1";' | tee -a "$configFile"
+
+	echo "Configured Automatic Update Settings:" | tee -a /home/ScriptFiles/log.txt
+	echo "APT::Periodic::Update-Package-Lists \"1\"" | tee -a /home/ScriptFiles/log.txt
+	echo "APT::Periodic::Download-Upgradeable-Packages \"1\"" | tee -a /home/ScriptFiles/log.txt
+	echo "APT::Periodic::AutocleanInterval \"7\"" | tee -a /home/ScriptFiles/log.txt
+	echo "APT::Periodic::Unattended-Upgrade \"1\"" | tee -a /home/ScriptFiles/log.txt
+	
+	dpkg-reconfigure --priority=low unattended-upgrades
+	echo "Configured unattended-upgrades" | tee -a /home/ScriptFiles/log.txt
+
+	systemctl restart unattended-upgrades
+	echo "Restarted unattended-upgrades" | tee -a /home/ScriptFiles/log.txt
 }
 
 restoreBackup()
