@@ -425,13 +425,15 @@ fullUpdate()
 	echo "Fully Updating the System..." | tee -a /home/ScriptFiles/log.txt
 	
 	gnome-terminal -- bash -c "
-	echo 'Starting Updates' | sudo tee -a /home/ScriptFiles/log.txt;
-	sudo apt-get update -y; 
-	sudo apt upgrade -y; 
-	echo 'Updates Complete' | sudo tee -a /home/ScriptFiles/log.txt;
+	echo 'UPDATE: Terminal Opened, Update Starting' | tee -a /home/ScriptFiles/log.txt;
+	apt-get update -y; 
+	apt upgrade -y;
+ 	echo | tee -a /home/ScriptFiles/log.txt;
+	echo 'UPDATE: Updates Complete' | tee -a /home/ScriptFiles/log.txt;
+ 	sleep 50s;
 	exit"
-	
-	echo "Update Terminal Closed" | tee -a /home/ScriptFiles/log.txt
+
+	echo "Update in Progress..." | tee -a /home/ScriptFiles/log.txt
 }
 
 #CONFIGURE AUDITD:
@@ -472,7 +474,7 @@ scanCrontab()
 				if [ "$input" = "y" ]; then
 					echo "Opening Crontab - ${authUsers[i]}" | tee -a /home/ScriptFiles/log.txt
 					gnome-terminal -- bash -c "
-					sudo crontab -u ${authUsers[i]} -e;
+					crontab -u ${authUsers[i]} -e;
 					exit"
 				elif [ "$input" = "n" ]; then
 					echo "Searching for Next User..." | tee -a /home/ScriptFiles/log.txt
