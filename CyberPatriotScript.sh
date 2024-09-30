@@ -301,7 +301,7 @@ manageGroups()
 			echo "Please enter the name of the Group"
 			read input 
 			groupadd $input
-			echo "Added Group: $input" | tee -a /home/ScriptFiles/log.txt
+			echo "Added Group - $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -315,7 +315,7 @@ manageGroups()
 			echo "Please enter the name of the Group"
 			read input 
 			groupdel $input
-			echo "Removed Group: $input" | tee -a /home/ScriptFiles/log.txt
+			echo "Removed Group - $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -331,7 +331,7 @@ manageGroups()
 			echo "What is the username?"
 			read username
 			gpasswd -a $username $input
-			echo "Added User - $username, Group: $input" | tee -a /home/ScriptFiles/log.txt
+			echo "Added User - $username, Group - $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -347,7 +347,7 @@ manageGroups()
 			echo "What is the username?"
 			read username
 			gpasswd -d $username $input
-			echo "Removed User - $username, Group: $input" | tee -a /home/ScriptFiles/log.txt
+			echo "Removed User - $username, Group - $input" | tee -a /home/ScriptFiles/log.txt
 			clear
 		else
 			break
@@ -642,7 +642,7 @@ adminFile="manageAdmins.txt"
 if [ ! -f "$adminFile" ]; then
 	touch manageAdmins.txt
 	gedit manageAdmins.txt
-	
+
 	echo "Admin File Complete" | tee -a /home/ScriptFiles/log.txt
 fi
 
@@ -659,8 +659,11 @@ mapfile -t authUsers < $userFile
 mapfile -t authAdmins < $adminFile
 
 allUsers=(${authUsers[@]} ${authAdmins[@]})
-
-echo ${allUsers[@]}
+if ! grep -q "SCRIPT INITIALIZED" /home/ScriptFiles/log.txt; then
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "Inputted Users:" | tee -a /home/ScriptFiles/log.txt
+	echo "${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
+fi
 
 #DBUS CHECK:
 #Ensures new terminals can be opened using Gnome
