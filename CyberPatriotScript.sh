@@ -174,8 +174,8 @@ activateMultiple() {
 #Establishes the users.txt file that will be used in this function.
 manageUsers() 
 {
-	clear
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Starting Manage Users..." | tee -a /home/ScriptFiles/log.txt
 
 	#Combines files for a full list of expected users
@@ -283,8 +283,8 @@ manageUsers()
 
 manageGroups()
 {
-	clear
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Working on Groups..." | tee -a /home/ScriptFiles/log.txt	
 	
 	while true; do
@@ -350,8 +350,8 @@ manageGroups()
 
 passwordPolicy()
 {
-	clear
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Working on Password Policy..." | tee -a /home/ScriptFiles/log.txt
 
 	#Flag File for Restoration
@@ -398,8 +398,8 @@ passwordPolicy()
 #Installs and enables uncomplicated firewall on the device.
 activateFirewall() 
 {
-	clear
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Activating Firewall..." | tee -a /home/ScriptFiles/log.txt
 	
 	#mkfifo "$fifo"
@@ -423,7 +423,9 @@ activateFirewall()
 #Fully updates the device in a seperate terminal.
 fullUpdate() 
 {
+	echo | tee -a /home/ScriptFiles/log.txt
 	clear
+	echo "Fully Updating the System..." | tee -a /home/ScriptFiles/log.txt
 	
 	#mkfifo "$fifo"
 	gnome-terminal -- bash -c "
@@ -436,14 +438,16 @@ fullUpdate()
 	echo 'Terminal closing...'; > $fifo"
 	
 	read < "$fifo"
+	
+	echo "System Updated" | tee -a /home/ScriptFiles/log.txt
 }
 
 #CONFIGURE AUDITD:
 #Downloads and activates Auditd to help security.
 configureAuditd() 
 {
-	clear
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Configuring Auditd..." | tee -a /home/ScriptFiles/log.txt
 	
 	#mkfifo "$fifo"
@@ -469,42 +473,41 @@ configureAuditd()
 #Scans to see if there are any crontabs active. If so, lists them.
 scanCrontab() 
 {
+	echo | tee -a /home/ScriptFiles/log.txt
 	clear
-	echo 'Welcome to Scan Crontab, '$username'.'
-	echo
-	echo 'This will see if there are any active crontabs.'
-	echo 'If there are any, you can choose to open the file if you want.'
-	echo 'Scanning now...'
-	echo
+	echo "Scanning Crontabs..." | tee -a /home/ScriptFiles/log.txt 
+
 	cronDir="/var/spool/cron/crontabs"
 	cronRes="ls $cronDir"
+	
 	if [ -z "$cronRes" ]; then
-		echo 'No active Crontabs.'
+		echo "No Active Crontabs" | tee -a /home/ScriptFiles/log.txt
 	else
-		echo 'Crontabs found.'
-		echo 'These users have crontabs: '
+		echo "Crontabs Found" | tee -a /home/ScriptFiles/log.txt
+		echo "These Users have a Crontab:" | tee -a /home/ScriptFiles/log.txt
 		echo
 		for ((i=0; i<${#authUsers[@]}; i++)); do
 			if [ -f $cronDir/"${authUsers[i]}" ]; then
-				echo "Crontab Found - ${authUsers[i]}" | tee -a /home/ScriptFiles/log.txt
-				echo ${authUsers[i]}' has a Crontab, show it? (y/n)'
+				echo "${authUsers[i]}" | tee -a /home/ScriptFiles/log.txt
+				echo "Show It? (y/n)"
 				read input
 				if [ "$input" = "y" ]; then
 					echo
 					#mkfifo "$fifo"
-					echo 'Opening Crontab...'
+					echo "Opening Crontab..."
 					gnome-terminal -- bash -c "sudo crontab -u ${authUsers[i]} -e; > $fifo"
 					read < "$fifo"
 				elif [ "$input" = "n" ]; then
 					echo
-					echo 'Searching for next user.'
+					echo "Searching for Next User..." | tee -a /home/ScriptFiles/log.txt
 				else
-					echo 'Invalid answer, asking again...'
+					echo "Invalid answer, asking again..."
 					i=$((i-1))
 					echo
 				fi
 			fi
 		done
+		echo "No More Crontabs Located" | tee -a /home/ScriptFiles/log.txt
 	fi
 }
 
@@ -512,30 +515,27 @@ scanCrontab()
 #Displays active processes and services as well as options to stop them.
 processesAndServices() 
 {
+	echo | tee -a /home/ScriptFiles/log.txt
 	clear
-	echo 'Welcome to Processes and Services, '$username'.'
-	echo
-	echo 'This program will show all active services and processes on this device.'
-	echo 'If you want to, you can shut them down as well.'
-	echo 'Showing now...'
-	echo
-	echo 'Processes: '
+	echo "Examining Active Processes and Services..." | tee -a /home/ScriptFiles/log.txt
+
+	echo "Processes:"
 	netstat -tulnp
 	echo
 	for ((;;)) do
-		echo 'Would you like to remove any process(es)? (y/n)'
+		echo "Would you like to remove any process(es)? (y/n)"
 		read input
 		if [ "$input" == "y" ]; then
-			echo 'What process would you like to remove? (By PID)'
+			echo "What process would you like to remove? (By PID)"
 			read input
 			if [ -f "ps aux | grep -v "grep" | grep $input" ]; then
 				kill $input
 				echo
-				echo 'Process '$input', has been removed.'
+				echo "Process $input, has been Removed"
 				echo
 			else
 				echo
-				echo 'Invalid input.'
+				echo "Invalid Input"
 				echo
 			fi
 		elif [ "$input" == "n" ]; then
@@ -572,6 +572,7 @@ processesAndServices()
 automaticUpdates()
 {
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Configuring automatic updates..." | tee -a /home/ScriptFiles/log.txt
 	
 	configFile="/etc/apt/apt.conf.d/10periodic"
@@ -616,6 +617,7 @@ automaticUpdates()
 restoreBackup()
 {
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Searching for Backups..." | tee -a /home/ScriptFiles/log.txt
 	
 	if [ -f /home/ScriptFiles/backupCheck ]; then
@@ -646,7 +648,7 @@ fifo="/tmp/terminal_fifo"
 #SUDO/ROOT CHECK:
 #Checks if the script was ran as root, if not, it exits the script
 if [ "$EUID" -ne 0 ]; then
-	echo 'Run Script with "sudo" or as root.'
+	echo "Run Script with "sudo" or as Root"
 	exit
 fi
 
