@@ -90,38 +90,33 @@ mainMenu() {
 #Gives the user the option to activate multiple of the options available.
 activateMultiple() {
 	opList=()
-	updateLast=0
+	
 	echo 'Hello '$username'! Welcome to Activate Multiple.'
 	echo
-	echo 'Please enter all the operations you wish to do.'
-	echo 'Type 1 number into each line and press enter.'
-	echo 'Each command will be documented then activated in order.'
+	echo "Please enter all the operations you wish to do."
+	echo "Type 1 number into each line and press enter."
+	echo "Each command will be documented then activated in order."
 	echo
-	echo 'At any time, you can type 0 to start the operations.'
-	echo 'You can also get a list of all operations by typing -1.'
+	echo "At any time, you can type 0 to start the operations."
+	echo "You can also run all functions by typing -1."
 	echo
 	for ((;;)) do
-		echo 'Please input the operation you wish to do. (-1 for list, 0 to Start)'
+		echo "Please input the operation you wish to do. (-1 for auto, 0 to Start)"
 		read input
 		echo
-		if [[ ! $input  == 0 ]] && [[ ! $input == -1 ]] && [ ! $input == 4 ]; then
+		if [[ ! $input  == 0 ]] && [ ! $input == -1 ]; then
 			opList=("${opList[@]}" "$input")
 		elif [ $input == -1 ]; then
-			for ((i=0; i<${#listOperations[@]}; i++)); do
-				echo ${listOperations[i]}
-			done
-		elif [ $input == 4 ]; then
-			updateLast=1
+			opList=()
+			autoScript
+			break
 		else
 			break
 		fi
 	done
-	if [ $updateLast == 1 ];then
-		opList=("${opList[@]}" 4)
-	fi
 	echo "${opList[@]}"
 	echo
-	echo 'Activating now!'
+	echo "Activating now!"
 	echo
 	for ((a=0;a<${#opList[@]}; a++)); do
 		case ${opList[a]} in
@@ -615,6 +610,19 @@ restoreBackup()
 	else
 		echo "No Backups Found" | tee -a /home/ScriptFiles/log.txt
 	fi
+}
+
+autoScript()
+{
+manageUsers
+manageGroups
+passwordPolicy
+activateFirewall
+configureAuditd
+scanCrontab
+processesAndServices
+automaticUpdates
+fullUpdate
 }
 
 #BELOW ARE RESOURCES FOR STARTING THE SCRIPT:
