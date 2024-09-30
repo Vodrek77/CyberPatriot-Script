@@ -17,6 +17,10 @@ listOperations=(
 #MAIN MENU:
 #Shows the main menu and options for the script to execute.
 mainMenu() {
+	echo | tee -a /home/ScriptFiles/log.txt
+	echo "SCRIPT INITIALIZED" | tee -a /home/ScriptFiles/log.txt
+	clear
+
 	echo 'Linux CyberPatriot Script'
 	echo 'Written by Ryan George'
 	echo
@@ -401,22 +405,10 @@ activateFirewall()
 	echo | tee -a /home/ScriptFiles/log.txt
 	clear
 	echo "Activating Firewall..." | tee -a /home/ScriptFiles/log.txt
-	
-	#mkfifo "$fifo"
-	gnome-terminal -- bash -c "
-	echo 'Installing Uncomplicated Firewall now!'; 
-	sudo apt install ufw; 
-	echo 'Installation Complete'; 
-	echo 'Enabling Uncomplicated Firewall now.'; 
-	sudo ufw enable; 
-	echo; 
-	echo 'Firewall has been installed and activated.';
-	echo
-	echo 'Closing terminal...' > $fifo"
-	
-	read < "$fifo"
-	
-	echo "UFW Installed and Activated" | tee -a /home/ScriptFiles/log.txt
+	apt install ufw
+	echo "UFW Installed" | tee -a /home/ScriptFiles/log.txt
+	ufw enable
+	echo "UFW Enabled" | tee -a /home/ScriptFiles/log.txt
 }
 
 #FULL UPDATE:
@@ -427,19 +419,14 @@ fullUpdate()
 	clear
 	echo "Fully Updating the System..." | tee -a /home/ScriptFiles/log.txt
 	
-	#mkfifo "$fifo"
 	gnome-terminal -- bash -c "
-	echo 'Beginning Update now'; 
+	echo 'Starting Updates' | sudo tee -a /home/ScriptFiles/log.txt;
 	sudo apt-get update -y; 
 	sudo apt upgrade -y; 
-	echo; 
-	echo 'Update Complete!'; 
-	echo;
-	echo 'Terminal closing...'; > $fifo"
+	echo 'Updates Complete' | sudo tee -a /home/ScriptFiles/log.txt;
+	exit"
 	
-	read < "$fifo"
-	
-	echo "System Updated" | tee -a /home/ScriptFiles/log.txt
+	echo "Update Terminal Closed" | tee -a /home/ScriptFiles/log.txt
 }
 
 #CONFIGURE AUDITD:
@@ -450,23 +437,10 @@ configureAuditd()
 	clear
 	echo "Configuring Auditd..." | tee -a /home/ScriptFiles/log.txt
 	
-	#mkfifo "$fifo"
-	gnome-terminal -- bash -c "
-	echo 'Installing auditd.';
-	sudo apt install auditd -y;
-	echo;
-	echo 'Installation Complete!';
-	echo 'Activating now.'
-	echo;
-	sudo auditctl -e 1;
-	echo;
-	echo 'Activation Complete!';
-	echo;
-	echo 'Terminal closing...'; > $fifo"
-	
-	read < "$fifo"
-	
-	echo "Auditd Installed and Activated" | tee -a /home/ScriptFiles/log.txt
+	apt install auditd -y
+	echo "Auditd Installed" | tee -a /home/ScriptFiles/log.txt
+	sudo auditctl -e 1
+	echo "Auditd Activated" | tee -a /home/ScriptFiles/log.txt
 }
 
 #SCAN CRONTAB:
@@ -485,20 +459,17 @@ scanCrontab()
 	else
 		echo "Crontabs Found" | tee -a /home/ScriptFiles/log.txt
 		echo "These Users have a Crontab:" | tee -a /home/ScriptFiles/log.txt
-		echo
 		for ((i=0; i<${#authUsers[@]}; i++)); do
 			if [ -f $cronDir/"${authUsers[i]}" ]; then
 				echo "${authUsers[i]}" | tee -a /home/ScriptFiles/log.txt
 				echo "Show It? (y/n)"
 				read input
 				if [ "$input" = "y" ]; then
-					echo
-					#mkfifo "$fifo"
-					echo "Opening Crontab..."
-					gnome-terminal -- bash -c "sudo crontab -u ${authUsers[i]} -e; > $fifo"
-					read < "$fifo"
+					echo "Opening Crontab - ${authUsers[i]}" | tee -a /home/ScriptFiles/log.txt
+					gnome-terminal -- bash -c "
+					sudo crontab -u ${authUsers[i]} -e;
+					exit"
 				elif [ "$input" = "n" ]; then
-					echo
 					echo "Searching for Next User..." | tee -a /home/ScriptFiles/log.txt
 				else
 					echo "Invalid answer, asking again..."
@@ -641,10 +612,6 @@ restoreBackup()
 
 #BELOW ARE RESOURCES FOR STARTING THE SCRIPT:
 
-#FIFO TERMINAL:
-#Sets up fifo to close unwanted terminals.
-fifo="/tmp/terminal_fifo"
-
 #SUDO/ROOT CHECK:
 #Checks if the script was ran as root, if not, it exits the script
 if [ "$EUID" -ne 0 ]; then
@@ -711,7 +678,7 @@ echo
 
 #INITIALIZE MKFIFO:
 #Starts mkfifo to ensure functions and windows open sequentially.
-mkfifo $fifo
+mkfifo fifo
 
 #PROGRAM START:
 #Calls the main menu to start the program.
