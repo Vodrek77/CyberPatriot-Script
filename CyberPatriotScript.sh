@@ -425,12 +425,12 @@ fullUpdate()
 	echo "Fully Updating the System..." | tee -a /home/ScriptFiles/log.txt
 	
 	gnome-terminal -- bash -c "
-	echo 'UPDATE: Terminal Opened, Update Starting' | tee -a /home/ScriptFiles/log.txt;
+	echo 'Terminal Opened' | tee -a /home/ScriptFiles/log.txt;
+ 	echo 'Update Starting' | tee -a /home/ScriptFiles/log.txt;
 	apt-get update -y; 
 	apt upgrade -y;
  	echo | tee -a /home/ScriptFiles/log.txt;
 	echo 'UPDATE: Updates Complete' | tee -a /home/ScriptFiles/log.txt;
- 	sleep 50s;
 	exit"
 
 	echo "Update in Progress..." | tee -a /home/ScriptFiles/log.txt
