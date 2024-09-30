@@ -231,7 +231,9 @@ manageUsers()
 	
 	#ADMIN USERS
 	read -a sudoers <<< $(echo "$(grep '^sudo:' /etc/group | cut -d ':' -f 4)" | tr ',' ' ')
+	
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Authorized Admins:" | tee -a /home/ScriptFiles/log.txt
 	echo "${sudoers[@]}" | tee -a /home/ScriptFiles/log.txt
 	
@@ -270,6 +272,7 @@ manageUsers()
 	
 	#PASSWORDS
 	echo | tee -a /home/ScriptFiles/log.txt
+	clear
 	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
 	
