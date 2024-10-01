@@ -459,15 +459,17 @@ antiVirus()
 	clear
 	echo "Enacting Anti-Virus..." | tee -a /home/ScriptFiles/log.txt
 	
-	apt-get install clamav -y
+	apt-get install clamav clamav-daemon
 	echo "ClamAV Installed" | tee -a /home/ScriptFiles/log.txt
 	
 	gnome-terminal -- bash -c "
 	echo 'Terminal Opened' | tee -a /home/ScriptFiles/log.txt;
  	echo 'Updating ClamAV Database' | tee -a /home/ScriptFiles/log.txt;
-	freshclam;
+	if ! systemctl is-active --quiet clamav-freshclam; then
+    		systemctl start clamav-freshclam
+	fi;
 	echo 'Scanning System' | tee -a /home/ScriptFiles/log.txt;
-	clamscan –i –r --remove=yes /;
+	clamscan -r --remove --exclude-dir="^/sys" --exclude-dir="^/proc" --exclude-dir="^/dev" /;
  	echo | tee -a /home/ScriptFiles/log.txt;
 	echo 'ANTI-VIRUS: System Scanned, Viruses Removed' | tee -a /home/ScriptFiles/log.txt;
 	exit"
@@ -725,7 +727,9 @@ fi
 clear
 echo 'What is your Username?'
 read username
-echo
+
+echo | tee -a /home/ScriptFiles/log.txt
+echo "Username: $username" | tee -a /home/ScriptFiles/log.txt
 
 #PROGRAM START:
 #Calls the main menu to start the program.
