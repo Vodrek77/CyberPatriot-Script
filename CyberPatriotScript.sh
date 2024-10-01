@@ -7,8 +7,8 @@ listOperations=(
 "3) Password Policy"
 "4) Activate Firewall" 
 "5) Configure Auditd" 
-"6) Anti-Virus"
-"7) Scan Crontab" 
+"6) Scan Crontab" 
+"7) Software Check"
 "8) Processes and Services" 
 "9) Automatic Updates"
 "10) Full Update" 
@@ -61,12 +61,12 @@ mainMenu() {
 		;;
 		
 		6)
-		antiVirus
-		;;
-		
-		7)
 		scanCrontab
 		;;
+
+  		7)
+    		softwareCheck
+      		;;
 		
 		8)
 		processesAndServices
@@ -77,7 +77,7 @@ mainMenu() {
 		;;
 		
 		10)
-		fullUpdate
+		updateAndAntiVirus
 		;;
 		
 		99)
@@ -146,11 +146,11 @@ activateMultiple() {
 			;;
 			
 			6)
-			antiVirus
-			;;
-			
-			7)
 			scanCrontab
+			;;
+
+      			7)
+	 		softwareCheck
 			;;
 			
 			8)
@@ -162,7 +162,7 @@ activateMultiple() {
 			;;
 			
 			10)
-			fullUpdate
+			updateAndAntiVirus
 			;;
 			
 			99)
@@ -176,10 +176,8 @@ activateMultiple() {
 	clear
 }
 
-#BELOW ARE RESOURCES FOR INDIVIDUAL OPERATIONS!
-
 #MANAGE USERS:
-#Establishes the users.txt file that will be used in this function.
+#Removes/Adds users onto the system, as well as removing/adding admin privileges based on input files.
 manageUsers() 
 {
 	echo | tee -a /home/ScriptFiles/log.txt
@@ -277,6 +275,8 @@ manageUsers()
 	clear
 }
 
+#MANAGE GROUPS:
+#Uses user input to add/delete groups as well as adding/removing users from groups.
 manageGroups()
 {
 	echo | tee -a /home/ScriptFiles/log.txt
@@ -344,6 +344,8 @@ manageGroups()
 	done
 }
 
+#PASSWORD POLICY:
+#Creates backups and changes security config files to secure passwords and authentication.
 passwordPolicy()
 {
 	echo | tee -a /home/ScriptFiles/log.txt
@@ -419,9 +421,9 @@ activateFirewall()
 	echo "UFW Enabled" | tee -a /home/ScriptFiles/log.txt
 }
 
-#FULL UPDATE:
-#Fully updates the device in a seperate terminal.
-fullUpdate() 
+#UPDATE AND ANTI-VIRUS:
+#Fully updates the device in a seperate terminal, then runs ClamAV to scan for virus infections
+updateAndAntiVirus() 
 {
 	echo | tee -a /home/ScriptFiles/log.txt
 	clear
@@ -434,6 +436,19 @@ fullUpdate()
 	apt upgrade -y;
  	echo | tee -a /home/ScriptFiles/log.txt;
 	echo 'UPDATE: Updates Complete' | tee -a /home/ScriptFiles/log.txt;
+ 
+ 	echo | tee -a /home/ScriptFiles/log.txt;
+  	echo 'Enacting Anti-Virus...' | tee -a /home/ScriptFiles/log.txt;
+   	apt-get install clamav clamav-daemon;
+	echo 'ClamAV Installed' | tee -a /home/ScriptFiles/log.txt;
+	if ! systemctl is-active --quiet clamav-freshclam; then
+    		systemctl start clamav-freshclam
+	fi;
+ 	echo 'ClamAV Database Up to Date' | tee -a /home/ScriptFiles/log.txt;
+	echo 'Scanning System' | tee -a /home/ScriptFiles/log.txt;
+	clamscan -r --remove --exclude-dir="^/sys" --exclude-dir="^/proc" --exclude-dir="^/dev" /;
+ 	echo | tee -a /home/ScriptFiles/log.txt;
+	echo 'ANTI-VIRUS: System Scanned, Viruses Removed' | tee -a /home/ScriptFiles/log.txt;
 	exit"
 
 	echo "Update in Progress..." | tee -a /home/ScriptFiles/log.txt
@@ -453,32 +468,8 @@ configureAuditd()
 	echo "Auditd Activated" | tee -a /home/ScriptFiles/log.txt
 }
 
-antiVirus()
-{
-	echo | tee -a /home/ScriptFiles/log.txt
-	clear
-	echo "Enacting Anti-Virus..." | tee -a /home/ScriptFiles/log.txt
-	
-	apt-get install clamav clamav-daemon
-	echo "ClamAV Installed" | tee -a /home/ScriptFiles/log.txt
-	
-	gnome-terminal -- bash -c "
-	echo 'Terminal Opened' | tee -a /home/ScriptFiles/log.txt;
- 	echo 'Updating ClamAV Database' | tee -a /home/ScriptFiles/log.txt;
-	if ! systemctl is-active --quiet clamav-freshclam; then
-    		systemctl start clamav-freshclam
-	fi;
-	echo 'Scanning System' | tee -a /home/ScriptFiles/log.txt;
-	clamscan -r --remove --exclude-dir="^/sys" --exclude-dir="^/proc" --exclude-dir="^/dev" /;
- 	echo | tee -a /home/ScriptFiles/log.txt;
-	echo 'ANTI-VIRUS: System Scanned, Viruses Removed' | tee -a /home/ScriptFiles/log.txt;
-	exit"
-	
-	echo "System Scan in Progress..." | tee -a /home/ScriptFiles/log.txt
-}
-
 #SCAN CRONTAB:
-#Scans to see if there are any crontabs active. If so, lists them.
+#Scans to see if there are any crontabs active, if so, lists them.
 scanCrontab() 
 {
 	echo | tee -a /home/ScriptFiles/log.txt
@@ -514,6 +505,13 @@ scanCrontab()
 		done
 		echo "No More Crontabs Located" | tee -a /home/ScriptFiles/log.txt
 	fi
+}
+
+#SOFTWARE CHECK:
+#Scans the system for common unauthorized software and removes it.
+softwareCheck()
+{
+	echo "In Progress..."
 }
 
 #PROCESSES AND SERVICES:
@@ -651,11 +649,10 @@ manageGroups
 passwordPolicy
 activateFirewall
 configureAuditd
-antiVirus
 scanCrontab
 processesAndServices
 automaticUpdates
-fullUpdate
+updateAndAntiVirus
 }
 
 #BELOW ARE RESOURCES FOR STARTING THE SCRIPT:
