@@ -650,6 +650,7 @@ passwordPolicy
 activateFirewall
 configureAuditd
 scanCrontab
+softwareCheck
 processesAndServices
 automaticUpdates
 updateAndAntiVirus
