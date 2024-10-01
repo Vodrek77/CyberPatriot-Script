@@ -94,6 +94,7 @@ mainMenu() {
 #ACTIVATE MULTIPLE:
 #Gives the user the option to activate multiple of the options available.
 activateMultiple() {
+	clear
 	opList=()
 	
 	echo 'Hello '$username'! Welcome to Activate Multiple.'
@@ -377,8 +378,10 @@ passwordPolicy()
 
 	#PAM Authentication
 	sed -i 's/^auth\s*\[success=2\s*default=ignore\]\s*pam_unix\.so\s*nullok/auth	[success=2 default=ignore]	pam_unix.so/' /etc/pam.d/common-auth
-	#echo "auth	required			pam_tally2.so deny=5 onerr=fail no_lock_time" | tee -a /etc/pam.d/common-auth
-	#echo "auth	required			pam_faildelay.so delay=300000" | tee -a /etc/pam.d/common-auth
+	echo "auth required pam_faillock.so preauth silent audit deny=3 unlock_time=1200" | tee -a /home/ScriptFiles/log.txt
+	echo "auth [default=die] pam_faillock.so authfail audit deny=3 unlock_time=1200" | tee -a /home/ScriptFiles/log.txt
+	echo "auth sufficient pam_faillock.so authsucc" | tee -a /home/ScriptFiles/log.txt
+	
 	echo "Modified /etc/pam.d/common-auth" | tee -a /home/ScriptFiles/log.txt
 
 	#Password Expiry Protocols
