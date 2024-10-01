@@ -7,10 +7,11 @@ listOperations=(
 "3) Password Policy"
 "4) Activate Firewall" 
 "5) Configure Auditd" 
-"6) Scan Crontab" 
-"7) Processes and Services" 
-"8) Automatic Updates"
-"9) Full Update" 
+"6) Anti-Virus"
+"7) Scan Crontab" 
+"8) Processes and Services" 
+"9) Automatic Updates"
+"10) Full Update" 
 "99) Restore Backup"
 )
 
@@ -60,18 +61,22 @@ mainMenu() {
 		;;
 		
 		6)
-		scanCrontab
+		antiVirus
 		;;
 		
 		7)
-		processesAndServices
+		scanCrontab
 		;;
 		
 		8)
-		automaticUpdates
+		processesAndServices
 		;;
 		
 		9)
+		automaticUpdates
+		;;
+		
+		10)
 		fullUpdate
 		;;
 		
@@ -141,18 +146,22 @@ activateMultiple() {
 			;;
 			
 			6)
-			scanCrontab
+			antiVirus
 			;;
 			
 			7)
-			processesAndServices
+			scanCrontab
 			;;
 			
 			8)
-			automaticUpdates
+			processesAndServices
 			;;
 			
 			9)
+			automaticUpdates
+			;;
+			
+			10)
 			fullUpdate
 			;;
 			
@@ -440,6 +449,28 @@ configureAuditd()
 	echo "Auditd Activated" | tee -a /home/ScriptFiles/log.txt
 }
 
+antiVirus()
+{
+	echo | tee -a /home/ScriptFiles/log.txt
+	clear
+	echo "Enacting Anti-Virus..." | tee -a /home/ScriptFiles/log.txt
+	
+	apt-get install clamav
+	echo "ClamAV Installed" | tee -a /home/ScriptFiles/log.txt
+	
+	gnome-terminal -- bash -c "
+	echo 'Terminal Opened' | tee -a /home/ScriptFiles/log.txt;
+ 	echo 'Updating ClamAV Database' | tee -a /home/ScriptFiles/log.txt;
+	freshclam;
+	echo 'Scanning System' | tee -a /home/ScriptFiles/log.txt;
+	clamscan –i –r --remove=yes /;
+ 	echo | tee -a /home/ScriptFiles/log.txt;
+	echo 'ANTI-VIRUS: System Scanned, Viruses Removed' | tee -a /home/ScriptFiles/log.txt;
+	exit"
+	
+	echo "System Scan in Progress..." | tee -a /home/ScriptFiles/log.txt
+}
+
 #SCAN CRONTAB:
 #Scans to see if there are any crontabs active. If so, lists them.
 scanCrontab() 
@@ -614,6 +645,7 @@ manageGroups
 passwordPolicy
 activateFirewall
 configureAuditd
+antiVirus
 scanCrontab
 processesAndServices
 automaticUpdates
