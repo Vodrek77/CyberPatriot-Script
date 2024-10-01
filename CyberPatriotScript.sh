@@ -266,17 +266,17 @@ manageUsers()
 	#//////////
 	
 	#PASSWORDS
-	echo | tee -a /home/ScriptFiles/log.txt
-	clear
-	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
+	#echo | tee -a /home/ScriptFiles/log.txt
+	#clear
+	#echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
-	for user in "${systemUsers[@]}"; do
-		if [[ "$user" != "$username" ]]; then
-			password=tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 16
-			echo "$user:$password" | chpasswd
-			echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
-		fi
-	done
+	#for user in "${systemUsers[@]}"; do
+	#	if [[ "$user" != "$username" ]]; then
+	#		password=tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 16
+	#		echo "$user:$password" | chpasswd
+	#		echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
+	#	fi
+	#done
 }
 
 manageGroups()
@@ -392,6 +392,19 @@ passwordPolicy()
 	echo "Modified /etc/ssh/sshd_config" | tee -a /home/ScriptFiles/log.txt
 	systemctl restart sshd
 	echo "Restarted SSHD" | tee -a /home/ScriptFiles/log.txt
+	
+	#Set Randomized Passwords
+	echo | tee -a /home/ScriptFiles/log.txt
+	clear
+	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
+	
+	for user in "${systemUsers[@]}"; do
+		if [[ "$user" != "$username" ]]; then
+			password=tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 16
+			echo "$user:$password" | chpasswd
+			echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
+		fi
+	done
 }
 
 #ACTIVATE FIREWALL:
