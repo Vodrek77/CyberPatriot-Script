@@ -7,11 +7,12 @@ listOperations=(
 "3) Password Policy"
 "4) Activate Firewall" 
 "5) Configure Auditd" 
-"6) Scan Crontab" 
-"7) Software Check"
-"8) Processes and Services" 
-"9) Automatic Updates"
-"10) Full Update" 
+"6) Auto Login and Guest"
+"7) Scan Crontab" 
+"8) Software Check"
+"9) Processes and Services" 
+"10) Automatic Updates"
+"11) Full Update" 
 "99) Restore Backup"
 )
 
@@ -59,24 +60,28 @@ mainMenu() {
 		5)
 		configureAuditd
 		;;
+
+  		6)
+    		autoLoginAndGuest
+      		;;
 		
-		6)
+		7)
 		scanCrontab
 		;;
 
-  		7)
+  		8)
     		softwareCheck
       		;;
 		
-		8)
+		9)
 		processesAndServices
 		;;
 		
-		9)
+		10)
 		automaticUpdates
 		;;
 		
-		10)
+		11)
 		updateAndAntiVirus
 		;;
 		
@@ -145,24 +150,28 @@ activateMultiple() {
 			5)
 			configureAuditd
 			;;
+
+   			6)
+      			autoLoginAndGuest
+	 		;;
 			
-			6)
+			7)
 			scanCrontab
 			;;
 
-      			7)
+      			8)
 	 		softwareCheck
 			;;
 			
-			8)
+			9)
 			processesAndServices
 			;;
 			
-			9)
+			10)
 			automaticUpdates
 			;;
 			
-			10)
+			11)
 			updateAndAntiVirus
 			;;
 			
@@ -353,6 +362,9 @@ passwordPolicy()
 	clear
 	echo "Working on Password Policy..." | tee -a /home/ScriptFiles/log.txt
 
+ 	apt-get install libpam-cracklib
+  	echo "Installed libpam-cracklib" | tee -a /home/ScriptFiles/log.txt
+
 	#Flag File for Restoration
 	if [ ! -f /home/ScriptFiles/backupCheck ]; then
 		touch /home/ScriptFiles/backupCheck
@@ -469,6 +481,11 @@ configureAuditd()
 	echo "Auditd Installed" | tee -a /home/ScriptFiles/log.txt
 	sudo auditctl -e 1
 	echo "Auditd Activated" | tee -a /home/ScriptFiles/log.txt
+}
+
+autoLoginAndGuest()
+{
+	echo "In Development..."
 }
 
 #SCAN CRONTAB:
@@ -652,6 +669,7 @@ manageGroups
 passwordPolicy
 activateFirewall
 configureAuditd
+autoLoginAndGuest
 scanCrontab
 softwareCheck
 processesAndServices
