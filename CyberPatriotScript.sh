@@ -404,7 +404,7 @@ passwordPolicy()
 	password=c0OlP@S5w0rD!1
 	
 	for user in "${allUsers[@]}"; do
-		if [[ "$user" != "$username" ]]; then
+		if [[ "$user" != "${allUsers[0]}" ]]; then
 			echo "$user:$password" | chpasswd
 			echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
 		fi
@@ -702,7 +702,7 @@ fi
 mapfile -t authUsers < $userFile
 mapfile -t authAdmins < $adminFile
 
-allUsers=(${authUsers[@]} ${authAdmins[@]})
+allUsers=(${authAdmins[@]} ${authUsers[@]})
 if ! grep -q "SCRIPT INITIALIZED" /home/ScriptFiles/log.txt; then
 	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Inputted Users:" | tee -a /home/ScriptFiles/log.txt
