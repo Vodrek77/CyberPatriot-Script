@@ -262,21 +262,6 @@ manageUsers()
     		fi
 	done
 	clear
-	
-	#//////////
-	
-	#PASSWORDS
-	#echo | tee -a /home/ScriptFiles/log.txt
-	#clear
-	#echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
-	
-	#for user in "${systemUsers[@]}"; do
-	#	if [[ "$user" != "$username" ]]; then
-	#		password=tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 16
-	#		echo "$user:$password" | chpasswd
-	#		echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
-	#	fi
-	#done
 }
 
 manageGroups()
@@ -393,14 +378,15 @@ passwordPolicy()
 	systemctl restart sshd
 	echo "Restarted SSHD" | tee -a /home/ScriptFiles/log.txt
 	
-	#Set Randomized Passwords
+	#Sets New Passwords for All Users
 	echo | tee -a /home/ScriptFiles/log.txt
 	clear
 	echo "Changing Passwords..." | tee -a /home/ScriptFiles/log.txt
 	
-	for user in "${systemUsers[@]}"; do
+	password=c0OlP@S5w0rD!1
+	
+	for user in "${allUsers[@]}"; do
 		if [[ "$user" != "$username" ]]; then
-			password=tr -dc 'A-Za-z0-9!"#$%&'\''()*+,-./:;<=>?@[\]^_`{|}~' </dev/urandom | head -c 16
 			echo "$user:$password" | chpasswd
 			echo "$user:$password" | tee -a /home/ScriptFiles/log.txt
 		fi
