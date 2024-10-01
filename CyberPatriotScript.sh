@@ -439,7 +439,7 @@ updateAndAntiVirus()
  
  	echo | tee -a /home/ScriptFiles/log.txt;
   	echo 'Enacting Anti-Virus...' | tee -a /home/ScriptFiles/log.txt;
-   	apt-get install clamav clamav-daemon;
+   	apt-get install clamav clamav-daemon -y;
 	echo 'ClamAV Installed' | tee -a /home/ScriptFiles/log.txt;
 	if ! systemctl is-active --quiet clamav-freshclam; then
     		systemctl start clamav-freshclam
@@ -449,7 +449,7 @@ updateAndAntiVirus()
 	clamscan -r --remove --exclude-dir="^/sys" --exclude-dir="^/proc" --exclude-dir="^/dev" /;
  	echo | tee -a /home/ScriptFiles/log.txt;
 	echo 'ANTI-VIRUS: System Scanned, Viruses Removed' | tee -a /home/ScriptFiles/log.txt;
-	exit"
+	exec bash"
 
 	echo "Update in Progress..." | tee -a /home/ScriptFiles/log.txt
 }
@@ -706,6 +706,7 @@ if ! grep -q "SCRIPT INITIALIZED" /home/ScriptFiles/log.txt; then
 	for user in "${allUsers[@]}"; do
 		echo "$user" | tee -a /home/ScriptFiles/log.txt
 	done
+	clear
 fi
 
 #DBUS CHECK:
