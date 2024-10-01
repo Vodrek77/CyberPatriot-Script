@@ -459,7 +459,7 @@ antiVirus()
 	clear
 	echo "Enacting Anti-Virus..." | tee -a /home/ScriptFiles/log.txt
 	
-	apt-get install clamav
+	apt-get install clamav -y
 	echo "ClamAV Installed" | tee -a /home/ScriptFiles/log.txt
 	
 	gnome-terminal -- bash -c "
