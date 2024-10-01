@@ -189,7 +189,9 @@ manageUsers()
 	#Combines files for a full list of expected users
 	allUsers=(${authAdmins[@]} ${authUsers[@]})
 	echo "Authorized Users:" | tee -a /home/ScriptFiles/log.txt
-	echo "${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
+	for user in "${allUsers[@]}"; do
+		echo "$user" | tee -a /home/ScriptFiles/log.txt
+	done
 	
 	#Makes a list of what users are on the system currently
 	mapfile -t systemUsers < <(cut -d: -f1,3 /etc/passwd | egrep ':[0-9]{4}$' | cut -d: -f1)
@@ -239,7 +241,9 @@ manageUsers()
 	echo | tee -a /home/ScriptFiles/log.txt
 	clear
 	echo "Authorized Admins:" | tee -a /home/ScriptFiles/log.txt
-	echo "${sudoers[@]}" | tee -a /home/ScriptFiles/log.txt
+	for user in "${sudoers[@]}"; do
+		echo "$user" | tee -a /home/ScriptFiles/log.txt
+	done
 	
 	#Removes any unauthorized Admins
 	for user in "${sudoers[@]}"; do
@@ -699,7 +703,9 @@ allUsers=(${authUsers[@]} ${authAdmins[@]})
 if ! grep -q "SCRIPT INITIALIZED" /home/ScriptFiles/log.txt; then
 	echo | tee -a /home/ScriptFiles/log.txt
 	echo "Inputted Users:" | tee -a /home/ScriptFiles/log.txt
-	echo "${allUsers[@]}" | tee -a /home/ScriptFiles/log.txt
+	for user in "${allUsers[@]}"; do
+		echo "$user" | tee -a /home/ScriptFiles/log.txt
+	done
 fi
 
 #DBUS CHECK:
