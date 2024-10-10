@@ -362,8 +362,8 @@ passwordPolicy()
 	clear
 	echo "Working on Password Policy..." | tee -a /home/ScriptFiles/log.txt
 
- 	apt-get install libpam-cracklib
-  	echo "Installed libpam-cracklib" | tee -a /home/ScriptFiles/log.txt
+ 	#apt-get install libpam-cracklib
+  	#echo "Installed libpam-cracklib" | tee -a /home/ScriptFiles/log.txt
 
 	#Flag File for Restoration
 	if [ ! -f /home/ScriptFiles/backupCheck ]; then
